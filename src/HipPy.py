@@ -41,7 +41,6 @@ while True:
         _,image = getimgwin(camera)                    # capture image
     
     imageprocessed, tar, contour = procimg(image)   # process the image, Tar = True/False (target found?), contour(target outline)
-    cv2.imshow("cool",imageprocessed)
 
     if tar:
 
