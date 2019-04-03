@@ -3,13 +3,15 @@ ALL THE METHODS
 """
 
 import cv2
-from picamera.array import PiRGBArray
-from picamera import PiCamera
+if False:
+    from picamera.array import PiRGBArray
+    from picamera import PiCamera
+
 import time
 import string
 import numpy as np
 import pytesseract
-
+pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files (x86)\Tesseract-OCR\tesseract"  # My computer needs this ;_;
 
 def setup():
     """ Initial setup """
@@ -149,12 +151,28 @@ def doocr(preocr):
         if ocrres[0] in string.ascii_uppercase:
             #letter = ocrres[0]
             #confidence = ocrres[1]
+            yes = (ocrres[0], ocrres[1])
+            return yes
+        else:
+            yes = ('', '')
+            return yes
 
-            return ocrres[0], ocrres[1]
 
-            #dataLog[dataCount][0] = letter
-            #dataLog[dataCount][1] = str(confidence)
-            #dataCount = dataCount + 1
+def outimg(image,preocr,letter=' ',confidence=0):
 
-def outimg(image):
-    pass
+    composit = np.zeros((1000, 1250, 3), np.uint8)  # final output feed
+    #composit[0:170, 1080:1250] = preocr[0:170, 0:170]
+    #composit[170:340, 1080:1250] = preocr[0:170, 200:370]
+    #composit[340:510, 1080:1250] = preocr[0:170, 400:570]
+    #composit[510:680, 1080:1250] = preocr[0:170, 600:770]
+    #composit[0:1000, 0:1000] = cv2.resize(image, (1000, 1000))
+
+    composit2 = cv2.resize(composit, (1200, 700))
+    cv2.putText(composit2, "Detected:", (970, 550), cv2.FONT_HERSHEY_COMPLEX, 0.5, (255, 255, 255), 1)
+    cv2.putText(composit2, "Confidence:", (1100, 550), cv2.FONT_HERSHEY_COMPLEX, 0.5, (255, 255, 255), 1)
+
+    cv2.putText(composit2, letter, (975, 630), cv2.FONT_HERSHEY_COMPLEX, 3, (255, 255, 255), 1)
+    cv2.putText(composit2, str(confidence), (1100, 610), cv2.FONT_HERSHEY_COMPLEX, 1.5, (255, 255, 255), 1)
+    cv2.putText(composit2, "%", (1160, 600), cv2.FONT_HERSHEY_COMPLEX, 1, (255, 255, 255), 1)
+
+    return composit2
