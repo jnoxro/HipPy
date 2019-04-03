@@ -3,6 +3,7 @@ ALL THE METHODS
 """
 
 import cv2
+#todo: actually fix this
 if False:
     from picamera.array import PiRGBArray
     from picamera import PiCamera
@@ -11,7 +12,9 @@ import time
 import string
 import numpy as np
 import pytesseract
+
 pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files (x86)\Tesseract-OCR\tesseract"  # My computer needs this ;_;
+
 
 def setup():
     """ Initial setup """
@@ -33,7 +36,7 @@ def getimg(camera, rawCapture):
 
 
 def getimgwin(camera):
-
+    """ Windows version of getimg """
     return camera.read()
 
 
@@ -122,17 +125,17 @@ def procimg(image):
 def doocr(preocr):
     """doocr handles the OCR"""
 
-
     preocr = cv2.resize(preocr, (68, 15))
     ocr = pytesseract.image_to_data(preocr, lang=None, config="--oem 1 --psm 5", nice=0,
                                     output_type=pytesseract.Output.DATAFRAME)
 
     try:
         print(ocr)
-    except:
-        print("The Error")
+    except Exception as e:
+        print(e)
 
     if len(ocr["text"]) == 11:  # only perform OCR if all 4 orientations had an outcome (fix out of range error)
+
         ocrres = [0, 0, 0, 0]
         ocrres[0] = (ocr["text"][4], ocr["conf"][4])
         ocrres[1] = (ocr["text"][6], ocr["conf"][6])
@@ -142,30 +145,34 @@ def doocr(preocr):
         textg = ocr["text"][:]
         confg = ocr["conf"][:]
         ocrres.sort(key=lambda tup: tup[1])
+
         try:
             print(textg, confg)
-        except:
-            print("The Error's here too")
+        except Exception as e:
+            print(e)
+
         ocrres = ocrres[3]
 
         if ocrres[0] in string.ascii_uppercase:
             #letter = ocrres[0]
             #confidence = ocrres[1]
-            yes = (ocrres[0], ocrres[1])
+
+            yes = (ocrres[0], ocrres[1])    # todo: actually fix this
             return yes
         else:
             yes = ('', '')
             return yes
 
 
-def outimg(image,preocr,letter=' ',confidence=0):
+def outimg(image, preocr, letter=' ', confidence=0):
+    """outimg prepares the final output image"""
 
     composit = np.zeros((1000, 1250, 3), np.uint8)  # final output feed
     #composit[0:170, 1080:1250] = preocr[0:170, 0:170]
     #composit[170:340, 1080:1250] = preocr[0:170, 200:370]
     #composit[340:510, 1080:1250] = preocr[0:170, 400:570]
     #composit[510:680, 1080:1250] = preocr[0:170, 600:770]
-    #composit[0:1000, 0:1000] = cv2.resize(image, (1000, 1000))
+    composit[0:1000, 0:1000] = cv2.resize(image, (1000, 1000))
 
     composit2 = cv2.resize(composit, (1200, 700))
     cv2.putText(composit2, "Detected:", (970, 550), cv2.FONT_HERSHEY_COMPLEX, 0.5, (255, 255, 255), 1)
