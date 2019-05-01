@@ -13,7 +13,7 @@ import string
 import numpy as np
 import pytesseract
 
-pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files (x86)\Tesseract-OCR\tesseract"  # My computer needs this ;_;
+#pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files (x86)\Tesseract-OCR\tesseract"  # My computer needs this ;_;
 
 
 def setup():
