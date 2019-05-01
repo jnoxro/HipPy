@@ -18,6 +18,10 @@ if systype == 0:
     from picamera.array import PiRGBArray
     from picamera import PiCamera       # import library to interface pi camera
 
+if systype == 1:
+    import pyfakewebcam as pfw
+    fakecam = pfw.FakeWebcam('/dev/video2', 1000, 1250)
+
 import cv2                              # import image processing library
 import numpy as np                      # import numpy
 import time                             # import time(for timing)
@@ -56,7 +60,8 @@ while True:
         composit = outimg(image,imageprocessed,letter,confidence)
 
         if systype == 1:
-            cv2.imshow("Out",composit)
+            #cv2.imshow("Out",composit)
+            fakecam.schedule_frame(composit)
 
             k = cv2.waitKey(5) & 0xFF
             if k == 27:

@@ -7,13 +7,22 @@ https://github.com/jremmons/pyfakewebcam/blob/master/examples/flashing_doge.py
 modprobe v4l2loopback devices=2
 
 """
-import fcntl, sys, os
-print("imported fcntl, sys and os")
-import v4l2
-print("imported v4l2")
+import numpy as np
+import pyfakewebcam as pfw
+import time
 
+blue = np.zeros((720,1280,3), dtype=np.uint8)
+blue[:,:,2] = 255
 
-print(__name__)
+red = np.zeros((720,1280,3), dtype=np.uint8)
+red[:,:,0] = 255
 
-if __name__ == "__main__":
-    devName = '/dev/video2'
+cam = pfw.FakeWebcam('/dev/video2', 1280, 720)
+
+while True:
+
+    cam.schedule_frame(red)
+    time.sleep(2)
+
+    cam.schedule_frame(blue)
+    time.sleep(2)
