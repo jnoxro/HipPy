@@ -157,21 +157,23 @@ def doocr(preocr):
             #letter = ocrres[0]
             #confidence = ocrres[1]
 
-            yes = (ocrres[0], ocrres[1])    # todo: actually fix this
-            return yes
+            return  (ocrres[0], ocrres[1])    # todo: actually fix this
         else:
-            yes = ('', '')
-            return yes
+            return (' ',' ')
 
 
 def outimg(image, preocr, letter=' ', confidence=0):
     """outimg prepares the final output image"""
 
     composit = np.zeros((1000, 1250, 3), np.uint8)  # final output feed
-    #composit[0:170, 1080:1250] = preocr[0:170, 0:170]
-    #composit[170:340, 1080:1250] = preocr[0:170, 200:370]
-    #composit[340:510, 1080:1250] = preocr[0:170, 400:570]
-    #composit[510:680, 1080:1250] = preocr[0:170, 600:770]
+    preocr = np.expand_dims(preocr,3)
+    try:
+        composit[0:170, 1080:1250] = preocr[0:170, 0:170]
+        composit[170:340, 1080:1250] = preocr[0:170, 200:370]
+        composit[340:510, 1080:1250] = preocr[0:170, 400:570]
+        composit[510:680, 1080:1250] = preocr[0:170, 600:770]
+    except Exception as e:
+        print("Error",e)
     composit[0:1000, 0:1000] = cv2.resize(image, (1000, 1000))
 
     composit2 = cv2.resize(composit, (1200, 700))
