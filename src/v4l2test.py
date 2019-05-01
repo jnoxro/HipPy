@@ -4,7 +4,14 @@ do this thing: sudo modprobe v4l2loopback
 
 update (may do python 3 yay)
 https://github.com/jremmons/pyfakewebcam/blob/master/examples/flashing_doge.py
-modprobe v4l2loopback devices=2
+
+first do:
+modprobe v4l2loopback devices=1
+
+then
+v4l2-ctl--list-devices
+
+find new fake device name
 
 """
 import numpy as np
