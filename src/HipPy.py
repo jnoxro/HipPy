@@ -21,7 +21,7 @@ if systype == 0:
 
 if systype == 1:
     import pyfakewebcam as pfw
-    fakecam = pfw.FakeWebcam('/dev/video1', 1200, 700)
+    fakecam = pfw.FakeWebcam('/dev/video2', 1200, 700)
 
 import cv2                              # import image processing library
 import numpy as np                      # import numpy
