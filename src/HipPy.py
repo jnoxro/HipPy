@@ -5,11 +5,20 @@ Authors:
 Ahmed Abbas
 Jack Orton
 
+steps: 
+sudo modprobe v4l2loopback devices=1
+v4l2-ctl --list-devices
+find device name from list (called dummy device)
 """
 
 systype = 1                        # 0 = pi, 1 = win
+videodevice = '/dev/video2'
+
+
+
 width = 640                        # choose raw image width
 height = 480                       # choose raw image height
+count = 0
 
 
 from methods import *              # import our custom methods
@@ -21,7 +30,7 @@ if systype == 0:
 
 if systype == 1:
     import pyfakewebcam as pfw
-    fakecam = pfw.FakeWebcam('/dev/video2', 1200, 700)
+    fakecam = pfw.FakeWebcam(videodevice, 1200, 700)
 
 import cv2                              # import image processing library
 import numpy as np                      # import numpy
@@ -40,6 +49,8 @@ if systype == 0:
 else:
     camera = cv2.VideoCapture(0)
 
+letter,confidence = "",0
+
 while True:
 
     if systype == 0:                           # if on pi
@@ -50,16 +61,21 @@ while True:
     imageprocessed, tar, contour = procimg(image)   # process the image, Tar = True/False (target found?), contour(target outline)
 
     if tar:
+        
+        if count == 4:
+            try:
 
-        try:
+                letter,confidence = doocr(imageprocessed)
+                datalog.append((letter,confidence,X,Y))
 
-            letter,confidence = doocr(imageprocessed)
-            datalog.append((letter,confidence,X,Y))
+            except Exception as e:
 
-        except Exception as e:
-
-            letter,confidence = "",0
-            print(e)
+                #letter,confidence = "",0
+                print(e)
+            
+            count = 0
+        
+        count = count + 1
 
     composit = outimg(image,imageprocessed,letter,confidence)
 
