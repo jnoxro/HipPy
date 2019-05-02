@@ -55,7 +55,7 @@ while True:
 
     if systype == 0:                           # if on pi
         image = getimg(camera, rawCapture)     # Capture image
-    if systype == 1:                           # if on lapop
+    if systype == 1:                           # if on laptop
         _,image = getimgwin(camera)                    # capture image
     
     imageprocessed, tar, contour = procimg(image)   # process the image, Tar = True/False (target found?), contour(target outline)
@@ -69,8 +69,6 @@ while True:
                 datalog.append((letter,confidence,X,Y))
 
             except Exception as e:
-
-                #letter,confidence = "",0
                 print(e)
             
             count = 0
