@@ -15,6 +15,7 @@ systype = 1                        # 0 = pi, 1 = win
 
 if systype == 1:
     import pyfakewebcam as pfw
+    import sys 
     
     num = '0'
     
@@ -26,7 +27,8 @@ if systype == 1:
         except Exception as e:
             print("not /dev/video"+num,e)
             num = str(int(num)+1)
-
+    if int(num) == 10:
+        sys.exit()
 
 width = 640                        # choose raw image width
 height = 480                       # choose raw image height
