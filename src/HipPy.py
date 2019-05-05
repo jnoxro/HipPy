@@ -12,8 +12,20 @@ find device name from list (called dummy device)
 """
 
 systype = 1                        # 0 = pi, 1 = win
-videodevice = '/dev/video2'
 
+if systype == 1:
+    import pyfakewebcam as pfw
+    
+    num = '0'
+    
+    while int(num) < 10:
+        try:
+            videodevice = '/dev/video' + num
+            fakecam = pfw.FakeWebcam(videodevice, 1200, 700)
+            break
+        except Exception as e:
+            print("not /dev/video"+num,e)
+            num = str(int(num)+1)
 
 
 width = 640                        # choose raw image width
@@ -27,10 +39,6 @@ if systype == 0:
     # import picamera libraries only if on the pi
     from picamera.array import PiRGBArray
     from picamera import PiCamera       # import library to interface pi camera
-
-if systype == 1:
-    import pyfakewebcam as pfw
-    fakecam = pfw.FakeWebcam(videodevice, 1200, 700)
 
 import cv2                              # import image processing library
 import numpy as np                      # import numpy
