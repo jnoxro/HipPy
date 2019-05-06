@@ -95,7 +95,7 @@ def procimg(image):
 
     if screenCnt != []:
         rop = image[y:y + h, x:x + w]
-        cv2.drawContours(image,[screenCnt],-1,(0,255,0),10)
+        cv2.drawContours(image,[screenCnt],-1,(0,255,0),5)
         rop = cv2.resize(rop, (250, 250))
         M = cv2.getRotationMatrix2D((250 / 2, 250 / 2), rotateRequired, 1)
         M2 = cv2.getRotationMatrix2D((250 / 2, 250 / 2), rotateRequired + 90, 1)
