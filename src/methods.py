@@ -192,8 +192,6 @@ def outimg(image, preocr, letter=' ', confidence=0):
 def confidence_sort(arr):
     """ Sort array by confidence, remove duplicates and return new array  """
 
-    letter = arr[0][0]  # first letter in array
-
     data = sorted(arr, key = lambda x: x[1], reverse=True)  # Sort by confidence
     
     dupe = set()

@@ -13,6 +13,7 @@ find device name from list (called dummy device)
 
 import os
 import sys
+import threading                        # import threading for multithreading
 
 if os.uname()[4][:3] == 'arm':
     systype = 0                        # 0 = pi, 1 = win
@@ -23,7 +24,7 @@ else:
 
 if systype == 1:
     import pyfakewebcam as pfw
-    
+    import subprocess    
     num = '0'
     
     while int(num) < 10:
@@ -36,7 +37,8 @@ if systype == 1:
             num = str(int(num)+1)
     if int(num) == 10:
         sys.exit()
-
+    # t = threading.Thread(target=subprocess.run,args=(['ffplay','/dev/video'+num],))   
+    # t.start()
 width = 640                        # choose raw image width
 height = 480                       # choose raw image height
 count = 0
@@ -52,7 +54,6 @@ if systype == 0:
 import cv2                              # import image processing library
 import numpy as np                      # import numpy
 import time                             # import time(for timing)
-import threading                        # import threading for multithreading
 
 datalog = []
 image = np.zeros([width, height])          # V E C T O R I Z E
