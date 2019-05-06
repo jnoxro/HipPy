@@ -3,8 +3,9 @@ ALL THE METHODS
 """
 
 import cv2
-#todo: actually fix this
-if False:
+import os
+
+if os.uname()[4][:3] == 'arm':
     from picamera.array import PiRGBArray
     from picamera import PiCamera
 
@@ -94,7 +95,7 @@ def procimg(image):
 
     if screenCnt != []:
         rop = image[y:y + h, x:x + w]
-
+        cv2.drawContours(image,[screenCnt],-1,(0,255,0),10)
         rop = cv2.resize(rop, (250, 250))
         M = cv2.getRotationMatrix2D((250 / 2, 250 / 2), rotateRequired, 1)
         M2 = cv2.getRotationMatrix2D((250 / 2, 250 / 2), rotateRequired + 90, 1)

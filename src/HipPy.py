@@ -11,11 +11,18 @@ v4l2-ctl --list-devices
 find device name from list (called dummy device)
 """
 
-systype = 1                        # 0 = pi, 1 = win
+import os
+import sys
+
+if os.uname()[4][:3] == 'arm':
+    systype = 0                        # 0 = pi, 1 = win
+elif sys.platform == 'linux':
+    systype = 1
+else:
+    systype = 2
 
 if systype == 1:
     import pyfakewebcam as pfw
-    import sys 
     
     num = '0'
     
@@ -45,6 +52,7 @@ if systype == 0:
 import cv2                              # import image processing library
 import numpy as np                      # import numpy
 import time                             # import time(for timing)
+import threading                        # import threading for multithreading
 
 datalog = []
 image = np.zeros([width, height])          # V E C T O R I Z E
@@ -56,10 +64,18 @@ X,Y = 0,0
 if systype == 0:
     camera = PiCamera()
     rawCapture = PiRGBArray(camera)
-else:
+
+else:  # systype = 2
     camera = cv2.VideoCapture(0)
 
 letter,confidence = "",0
+
+def move(location,gps):
+    """ code here for moving, will be moved to methods.py """
+    
+    print("im so moved",location,gps)
+
+
 
 while True:
 
@@ -80,6 +96,8 @@ while True:
                     datalog.append((letter,confidence,X,Y))
                     datalog = confidence_sort(datalog)
                     print(datalog)
+                    t1 = threading.Thread(target=move, args = ((datalog[-1][2],datalog[-1][3])))
+                    t1.start()
             except Exception as e:
                 print(e)
             
@@ -96,6 +114,8 @@ while True:
         k = cv2.waitKey(5) & 0xFF
         if k == 27:
             break
+
+
 
 
 
