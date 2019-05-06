@@ -76,8 +76,10 @@ while True:
             try:
 
                 letter,confidence = doocr(imageprocessed)
-                datalog.append((letter,confidence,X,Y))
-
+                if letter != ' ':
+                    datalog.append((letter,confidence,X,Y))
+                    datalog = confidence_sort(datalog)
+                    print(datalog)
             except Exception as e:
                 print(e)
             
@@ -94,5 +96,7 @@ while True:
         k = cv2.waitKey(5) & 0xFF
         if k == 27:
             break
+
+
 
 

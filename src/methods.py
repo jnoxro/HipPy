@@ -173,7 +173,8 @@ def outimg(image, preocr, letter=' ', confidence=0):
         composit[340:510, 1080:1250] = preocr[0:170, 400:570]
         composit[510:680, 1080:1250] = preocr[0:170, 600:770]
     except Exception as e:
-        print("Error",e)
+        # print("Error",e)
+        pass
     composit[0:1000, 0:1000] = cv2.resize(image, (1000, 1000))
 
     composit2 = cv2.resize(composit, (1200, 700))
@@ -185,3 +186,23 @@ def outimg(image, preocr, letter=' ', confidence=0):
     cv2.putText(composit2, "%", (1160, 600), cv2.FONT_HERSHEY_COMPLEX, 1, (255, 255, 255), 1)
 
     return composit2
+
+
+def confidence_sort(arr):
+    """ Sort array by confidence, remove duplicates and return new array  """
+
+    letter = arr[0][0]  # first letter in array
+
+    data = sorted(arr, key = lambda x: x[1], reverse=True)  # Sort by confidence
+    
+    dupe = set()
+
+    log = []  # array to be returned
+    
+    for i,j,k,l in data:
+        # remove duplicates
+        if i not in dupe:
+            dupe.add(i)
+            log.append((i,j,k,l))
+
+    return log
