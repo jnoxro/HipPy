@@ -169,22 +169,23 @@ def outimg(image, preocr, letter=' ', confidence=0):
     composit = np.zeros((1000, 1250, 3), np.uint8)  # final output feed
     preocr = np.expand_dims(preocr,3)
     try:
-        composit[0:170, 1080:1250] = preocr[0:170, 0:170]
-        composit[170:340, 1080:1250] = preocr[0:170, 200:370]
-        composit[340:510, 1080:1250] = preocr[0:170, 400:570]
-        composit[510:680, 1080:1250] = preocr[0:170, 600:770]
+      #  composit[450:510, 1000:1060] = cv2.resize(preocr[0:170, 0:170], (60, 60))
+      #  composit[450:510, 1060:1120] = cv2.resize(preocr[0:170, 200:370], (60, 60))
+      #  composit[450:510, 1120:1180] = cv2.resize(preocr[0:170, 400:570], (60, 60))
+      #  composit[450:510, 1180:1240] = cv2.resize(preocr[0:170, 600:770], (60, 60))
+        composit[440:520, 1000:1250] = cv2.resize(preocr, (250, 80, 3))
     except Exception as e:
-        # print("Error",e)
+        print("Error: ",e)
         pass
     composit[0:1000, 0:1000] = cv2.resize(image, (1000, 1000))
 
     composit2 = cv2.resize(composit, (1280, 720))
-    cv2.putText(composit2, "Detected:", (970, 550), cv2.FONT_HERSHEY_COMPLEX, 0.5, (255, 255, 255), 1)
-    cv2.putText(composit2, "Confidence:", (1100, 550), cv2.FONT_HERSHEY_COMPLEX, 0.5, (255, 255, 255), 1)
+    cv2.putText(composit2, "Detected:", (1050, 400), cv2.FONT_HERSHEY_COMPLEX, 0.5, (255, 255, 255), 1)
+    cv2.putText(composit2, "Confidence:", (1150, 400), cv2.FONT_HERSHEY_COMPLEX, 0.5, (255, 255, 255), 1)
 
-    cv2.putText(composit2, letter, (975, 630), cv2.FONT_HERSHEY_COMPLEX, 3, (255, 255, 255), 1)
-    cv2.putText(composit2, str(confidence), (1100, 610), cv2.FONT_HERSHEY_COMPLEX, 1.5, (255, 255, 255), 1)
-    cv2.putText(composit2, "%", (1160, 600), cv2.FONT_HERSHEY_COMPLEX, 1, (255, 255, 255), 1)
+    cv2.putText(composit2, letter, (1050, 475), cv2.FONT_HERSHEY_COMPLEX, 2, (255, 255, 255), 1)
+    cv2.putText(composit2, str(confidence), (1150, 475), cv2.FONT_HERSHEY_COMPLEX, 1.5, (255, 255, 255), 1)
+    cv2.putText(composit2, "%", (1230, 450), cv2.FONT_HERSHEY_COMPLEX, 0.7, (255, 255, 255), 1)
 
     return composit2
 
