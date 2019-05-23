@@ -54,7 +54,7 @@ num = '1' #start from 1 so video0 (picam) isnt used - we can set device manually
 while int(num) < 10:
     try:
         videodevice = '/dev/video' + num
-        fakecam = pfw.FakeWebcam(videodevice, 1200, 700)
+        fakecam = pfw.FakeWebcam(videodevice, 1280, 720)
         print("video device: "+num)
         break
     except Exception as e:
