@@ -178,7 +178,7 @@ def outimg(image, preocr, letter=' ', confidence=0):
         pass
     composit[0:1000, 0:1000] = cv2.resize(image, (1000, 1000))
 
-    composit2 = cv2.resize(composit, (1200, 700))
+    composit2 = cv2.resize(composit, (1280, 720))
     cv2.putText(composit2, "Detected:", (970, 550), cv2.FONT_HERSHEY_COMPLEX, 0.5, (255, 255, 255), 1)
     cv2.putText(composit2, "Confidence:", (1100, 550), cv2.FONT_HERSHEY_COMPLEX, 0.5, (255, 255, 255), 1)
 
