@@ -130,10 +130,10 @@ def doocr(preocr):
     ocr = pytesseract.image_to_data(preocr, lang=None, config="--oem 1 --psm 5", nice=0,
                                     output_type=pytesseract.Output.DATAFRAME)
 
-    try:
-        print(ocr)
-    except Exception as e:
-        print(e)
+#    try:
+#        print(ocr)
+#    except Exception as e:
+#        print(e)
 
     if len(ocr["text"]) == 11:  # only perform OCR if all 4 orientations had an outcome (fix out of range error)
 
@@ -147,10 +147,10 @@ def doocr(preocr):
         confg = ocr["conf"][:]
         ocrres.sort(key=lambda tup: tup[1])
 
-        try:
-            print(textg, confg)
-        except Exception as e:
-            print(e)
+ #       try:
+ #           print(textg, confg)
+ #       except Exception as e:
+ #           print(e)
 
         ocrres = ocrres[3]
 

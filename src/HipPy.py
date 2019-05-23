@@ -34,28 +34,10 @@ if systype == 0:
     from picamera.array import PiRGBArray
     from picamera import PiCamera       # import library to interface pi camera
     camera = PiCamera()
+    camera.resolution = (640, 480)
     rawCapture = PiRGBArray(camera)
 
 elif systype == 1:
-
-    import pyfakewebcam as pfw
-    import subprocess
-    num = '0'
-
-    while int(num) < 10:
-
-        try:
-            videodevice = '/dev/video' + num
-            fakecam = pfw.FakeWebcam(videodevice, 1200, 700)
-            break
-        except Exception as e:
-            print("not /dev/video"+num, e)
-            num = str(int(num)+1)
-
-    if int(num) == 10:
-
-        print(" Have you tried: \nsudo modprobe v4l2loopback devices=1\nv4l2-ctl - -list-devices\nfind device name from list(called dummy device)")
-        sys.exit()
 
     # t = threading.Thread(target=subprocess.run,args=(['ffplay','/dev/video'+num],))
     # t.start()
@@ -65,11 +47,32 @@ else:  # systype = 2
     camera = cv2.VideoCapture(0)
 
 
+
+import pyfakewebcam as pfw
+import subprocess
+num = '1' #start from 1 so video0 (picam) isnt used - we can set device manually to avoid th need for this later on
+while int(num) < 10:
+    try:
+        videodevice = '/dev/video' + num
+        fakecam = pfw.FakeWebcam(videodevice, 1200, 700)
+        print("video device: "+num)
+        break
+    except Exception as e:
+        print("not /dev/video"+num, e)
+        num = str(int(num)+1)
+
+if int(num) == 10:
+    print(" Have you tried: \nsudo modprobe v4l2loopback devices=1\nv4l2-ctl - -list-devices\nfind device name from list(called dummy device)")
+    sys.exit()
+
+
+
+
 width = 640                        # choose raw image width
 height = 480                       # choose raw image height
 count = 0
 datalog = []
-image = np.zeros([width, height])          # V E C T O R I Z E
+image = np.zeros([width, height])          # V E C T O R I Z E  -- causing erros with pi cam removed 4 testing
 imageprocessed = np.zeros([170, 770])
 letter, confidence = "", 0
 X, Y = 0, 0
@@ -86,8 +89,11 @@ while True:
 
     if systype == 0:                           # if on pi
         image = getimg(camera, rawCapture)     # Capture image
+
     if systype == 1:                           # if on laptop
         _, image = getimgwin(camera)                    # capture image
+    
+    rawCapture.truncate(0)
 
     # process the image, Tar = True/False (target found?), contour(target outline)
     imageprocessed, tar, contour = procimg(image)
@@ -113,6 +119,9 @@ while True:
         count = count + 1
 
     composit = outimg(image, imageprocessed, letter, confidence)
+
+    if systype ==0:
+        fakecam.schedule_frame(composit)
 
     if systype == 1:
         # cv2.imshow("Out",composit)
