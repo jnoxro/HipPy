@@ -167,8 +167,11 @@ def outimg(image, preocr, letter=' ', confidence=0):
     """outimg prepares the final output image"""
 
     composit = np.zeros((1000, 1250, 3), np.uint8)  # final output feed
-    preocr = np.expand_dims(preocr,3)
+    #preocr = np.expand_dims(preocr,3)
+    
+    
     try:
+        preocr = cv2.cvtColor(preocr, cv2.COLOR_GRAY2RGB)
       #  composit[450:510, 1000:1060] = cv2.resize(preocr[0:170, 0:170], (60, 60))
       #  composit[450:510, 1060:1120] = cv2.resize(preocr[0:170, 200:370], (60, 60))
       #  composit[450:510, 1120:1180] = cv2.resize(preocr[0:170, 400:570], (60, 60))

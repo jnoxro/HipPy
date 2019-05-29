@@ -89,11 +89,12 @@ while True:
 
     if systype == 0:                           # if on pi
         image = getimg(camera, rawCapture)     # Capture image
+        rawCapture.truncate(0)
 
     if systype == 1:                           # if on laptop
         _, image = getimgwin(camera)                    # capture image
     
-    rawCapture.truncate(0)
+    
 
     # process the image, Tar = True/False (target found?), contour(target outline)
     imageprocessed, tar, contour = procimg(image)
