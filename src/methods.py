@@ -178,7 +178,7 @@ def outimg(image, preocr, letter=' ', confidence=0):
       #  composit[450:510, 1180:1240] = cv2.resize(preocr[0:170, 600:770], (60, 60))
         composit[440:520, 1000:1250] = cv2.resize(preocr, (250, 80))
     except Exception as e:
-        print("Error: ",e)
+        #print("Error: ",e)
         pass
     composit[0:1000, 0:1000] = cv2.resize(image, (1000, 1000))
 
