@@ -118,6 +118,8 @@ def procimg(image):
         # cv2.imshow("A",preocr)
         ret, preocr = cv2.threshold(preocr, 130, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
 
+        preocr = cv2.resize(preocr, (250, 80))
+
         return preocr, True, [screenCnt]
 
     return 0, False, 0
@@ -126,8 +128,8 @@ def procimg(image):
 def doocr(preocr):
     """doocr handles the OCR"""
 
-    preocr = cv2.resize(preocr, (68, 15))
-    ocr = pytesseract.image_to_data(preocr, lang=None, config="--oem 1 --psm 5", nice=0,
+    #preocr = cv2.resize(preocr, (250, 80))
+    ocr = pytesseract.image_to_data(preocr, lang=None, config="--oem 1 --psm 5", nice=-15,
                                     output_type=pytesseract.Output.DATAFRAME)
 
 #    try:
@@ -163,34 +165,34 @@ def doocr(preocr):
             return (' ',' ')
 
 
-def outimg(image, preocr, letter=' ', confidence=0):
+def outimg(image, preocr, letter=' ', confidence=0, fps=0):
     """outimg prepares the final output image"""
 
-    composit = np.zeros((1000, 1250, 3), np.uint8)  # final output feed
+    composit = np.zeros((720, 1280, 3), dtype=np.uint8)  # final output feed
     #preocr = np.expand_dims(preocr,3)
     
     
     try:
-        preocr = cv2.cvtColor(preocr, cv2.COLOR_GRAY2RGB)
-      #  composit[450:510, 1000:1060] = cv2.resize(preocr[0:170, 0:170], (60, 60))
-      #  composit[450:510, 1060:1120] = cv2.resize(preocr[0:170, 200:370], (60, 60))
-      #  composit[450:510, 1120:1180] = cv2.resize(preocr[0:170, 400:570], (60, 60))
-      #  composit[450:510, 1180:1240] = cv2.resize(preocr[0:170, 600:770], (60, 60))
-        composit[440:520, 1000:1250] = cv2.resize(preocr, (250, 80))
+        preocr = cv2.cvtColor(preocr, cv2.COLOR_GRAY2BGR)
+        composit[300:380, 1000:1250] = preocr
+
     except Exception as e:
-        #print("Error: ",e)
+        print("Error: ",e)
         pass
-    composit[0:1000, 0:1000] = cv2.resize(image, (1000, 1000))
+    
+    composit[100:600, 115:1000] = cv2.resize(image, (885, 500))
 
-    composit2 = cv2.resize(composit, (1280, 720))
-    cv2.putText(composit2, "Detected:", (1050, 400), cv2.FONT_HERSHEY_COMPLEX, 0.5, (255, 255, 255), 1)
-    cv2.putText(composit2, "Confidence:", (1150, 400), cv2.FONT_HERSHEY_COMPLEX, 0.5, (255, 255, 255), 1)
+    cv2.putText(composit, "Detected:", (1050, 400), cv2.FONT_HERSHEY_COMPLEX, 0.5, (255, 255, 255), 1)
+    cv2.putText(composit, "Confidence:", (1150, 400), cv2.FONT_HERSHEY_COMPLEX, 0.5, (255, 255, 255), 1)
 
-    cv2.putText(composit2, letter, (1050, 475), cv2.FONT_HERSHEY_COMPLEX, 2, (255, 255, 255), 1)
-    cv2.putText(composit2, str(confidence), (1150, 475), cv2.FONT_HERSHEY_COMPLEX, 1.5, (255, 255, 255), 1)
-    cv2.putText(composit2, "%", (1230, 450), cv2.FONT_HERSHEY_COMPLEX, 0.7, (255, 255, 255), 1)
+    cv2.putText(composit, letter, (1050, 475), cv2.FONT_HERSHEY_COMPLEX, 2, (255, 255, 255), 1)
+    cv2.putText(composit, str(confidence), (1150, 475), cv2.FONT_HERSHEY_COMPLEX, 1.5, (255, 255, 255), 1)
+    cv2.putText(composit, "%", (1230, 450), cv2.FONT_HERSHEY_COMPLEX, 0.7, (255, 255, 255), 1)
+    cv2.putText(composit, str(fps), (50, 50), cv2.FONT_HERSHEY_COMPLEX, 0.5, (255, 255, 255), 1)
 
-    return composit2
+    composit = np.uint8(np.copy(composit))
+
+    return composit
 
 
 def confidence_sort(arr):
