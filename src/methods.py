@@ -17,15 +17,12 @@ import pytesseract
 #pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files (x86)\Tesseract-OCR\tesseract"  # My computer needs this ;_;
 
 
+
 def setup():
     """ Initial setup """
     camera = PiCamera()
     rawCapture = PiRGBArray(camera)
     time.sleep(0.1)
-
-    grey = np.empty([480, 640])
-    image = np.empty([480, 640])
-    edged = np.empty([480, 640])
 
 
 def getimg(camera, rawCapture):
@@ -45,6 +42,16 @@ def getimgwin(camera):
 
 def procimg(image):
     """ procimg does all the image processing required (filters, edges and rotations) """
+    #vectorising
+    #grey = np.zeros([480, 640, 3], dtype=np.uint8)
+    #image = np.zeros([480, 640])
+    #im2 = np.zeros([480, 640])
+    #edged = np.zeros([480, 640])
+    preocr = np.zeros((170, 770, 3), dtype=np.uint8)
+    grey = np.ndarray((3, 480, 640), dtype=np.uint8)
+    im2 = np.ndarray((3, 480, 640), dtype=np.uint8)
+    edged = np.ndarray((3, 480, 640), dtype=np.uint8)
+
 
     grey = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)  # Convert to grey scale
     grey = cv2.GaussianBlur(grey, (5, 5), 1)  # Blur image to get rid of some noise (adjust this for less noise)
@@ -91,7 +98,7 @@ def procimg(image):
             rotateRequired = 90 + angle
             break
 
-    preocr = np.zeros((170, 770, 3), np.uint8)  # merge all 4 orientations onto this 1 image for ocr
+      # merge all 4 orientations onto this 1 image for ocr
 
     if screenCnt != []:
         rop = image[y:y + h, x:x + w]
@@ -129,7 +136,7 @@ def doocr(preocr):
     """doocr handles the OCR"""
 
     #preocr = cv2.resize(preocr, (250, 80))
-    ocr = pytesseract.image_to_data(preocr, lang=None, config="--oem 1 --psm 5", nice=-15,
+    ocr = pytesseract.image_to_data(preocr, lang=None, config="--oem 1 --psm 5", nice=-12,
                                     output_type=pytesseract.Output.DATAFRAME)
 
 #    try:
@@ -165,16 +172,17 @@ def doocr(preocr):
             return (' ',' ')
 
 
-def outimg(image, preocr, letter=' ', confidence=0, fps=0):
+def outimg(image, preocr, letter=' ', confidence=0, fps=0, fpsproc=0):
     """outimg prepares the final output image"""
 
-    composit = np.zeros((720, 1280, 3), dtype=np.uint8)  # final output feed
+    #composit = np.zeros((720, 1280, 3), dtype=np.uint8)  # final output feed
+    composit = np.ndarray((720, 1280, 3), dtype=np.uint8)
     #preocr = np.expand_dims(preocr,3)
     
     
     try:
         preocr = cv2.cvtColor(preocr, cv2.COLOR_GRAY2BGR)
-        composit[300:380, 1000:1250] = preocr
+        composit[300:380, 1015:1265] = preocr
 
     except Exception as e:
         print("Error: ",e)
@@ -182,15 +190,15 @@ def outimg(image, preocr, letter=' ', confidence=0, fps=0):
     
     composit[100:600, 115:1000] = cv2.resize(image, (885, 500))
 
-    cv2.putText(composit, "Detected:", (1050, 400), cv2.FONT_HERSHEY_COMPLEX, 0.5, (255, 255, 255), 1)
-    cv2.putText(composit, "Confidence:", (1150, 400), cv2.FONT_HERSHEY_COMPLEX, 0.5, (255, 255, 255), 1)
+    cv2.putText(composit, "Detected:     Confidence:", (1050, 400), cv2.FONT_HERSHEY_COMPLEX, 0.5, (255, 255, 255), 1)
+    #cv2.putText(composit, "Confidence:", (1150, 400), cv2.FONT_HERSHEY_COMPLEX, 0.5, (255, 255, 255), 1)
 
     cv2.putText(composit, letter, (1050, 475), cv2.FONT_HERSHEY_COMPLEX, 2, (255, 255, 255), 1)
     cv2.putText(composit, str(confidence), (1150, 475), cv2.FONT_HERSHEY_COMPLEX, 1.5, (255, 255, 255), 1)
     cv2.putText(composit, "%", (1230, 450), cv2.FONT_HERSHEY_COMPLEX, 0.7, (255, 255, 255), 1)
     cv2.putText(composit, str(fps), (50, 50), cv2.FONT_HERSHEY_COMPLEX, 0.5, (255, 255, 255), 1)
+    cv2.putText(composit, str(fpsproc), (50, 70), cv2.FONT_HERSHEY_COMPLEX, 0.5, (255, 255, 255), 1)
 
-    composit = np.uint8(np.copy(composit))
 
     return composit
 

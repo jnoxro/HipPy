@@ -86,10 +86,12 @@ count = 0
 datalog = []
 image = np.zeros([width, height])          # V E C T O R I Z E  -- causing erros with pi cam removed 4 testing
 imageprocessed = np.zeros([80, 250])
+#composit = np.zeros([720, 1280], dtype=np.uint8)
+composit = np.ndarray((720, 1280, 3), dtype=np.uint8)
 letter, confidence = "", 0
 X, Y = 0, 0
 letter, confidence = "", 0
-fps, fpsold = 0, 0
+fps, fpsold, fpsproc, fpsprocold = 0, 0, 0, 0
 
 
 def move(location, gps):
@@ -141,24 +143,30 @@ while True:
                 #print(e)
                 pass
 
+    composit = np.uint8(outimg(image, imageprocessed, letter, confidence, fps, fpsproc))
 
-    composit = outimg(image, imageprocessed, letter, confidence, fps)
+    endtime1 = time.time()    ##uncomment for processing fps
 
     if systype ==0:
         fakecam.schedule_frame(composit)
 
     if systype == 1:
-        # cv2.imshow("Out",composit)
+        
         fwstart = time.time()
+        #cv2.imshow("Out",composit)
         fakecam.schedule_frame(composit)
         fwend = time.time()
         print(fwend-fwstart)
 
-    endtime = time.time()
-    frametime = endtime - begintime
+    endtime2 = time.time()    ##uncomment for actual fps
+    frametime = endtime2 - begintime
+    processingtime = endtime1 - begintime
     fpsold = fps
+    fpsprocold = fpsproc
     fps = 1/frametime
+    fpsproc = 1/processingtime
     fps = round((fps + fpsold)/2)
+    fpsproc = round((fpsproc + fpsprocold)/2)
 
     
     
