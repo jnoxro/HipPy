@@ -19,9 +19,12 @@ import threading                        # import threading for multithreading
 import cv2                              # import image processing library
 import numpy as np                      # import numpy
 import time                             # import time(for timing)
-from methods import *                   # import our custom methods
+from methodsmulti import *                   # import our custom methods
+
 import imutils                          #image capture library with #threading (much faster pi image capture)
 from imutils.video import VideoStream   #thrreeaddinngg
+
+import multiprocessing
 
 if os.uname()[4][:3] == 'arm':
     systype = 0                        # 0 = pi, 1 = win
@@ -112,10 +115,7 @@ while True:
         #image = vidstream.read()
 
     if systype == 1:                           # if on laptop
-        #og:
-        #_, image = getimgwin(camera)                    # capture image
 
-        #new
         image = vidstream.read()
         image = np.uint8(imutils.resize(image, width=640)) #only needed when not using picam
     
@@ -123,25 +123,25 @@ while True:
 
     # process the image, Tar = True/False (target found?), contour(target outline)
     imageprocessed, tar, contour = procimg(image)
+    
+    # if tar:
+    #     count = count + 1
 
-    if tar:
-        count = count + 1
+    #     if count == 4:
+    #         count = 0
+    #         try:
 
-        if count == 4:
-            count = 0
-            try:
-
-                letter, confidence = doocr(imageprocessed)
-                if letter != ' ':
-                    datalog.append((letter, confidence, X, Y))
-                    datalog = confidence_sort(datalog)
-                    print(datalog)
-                    t1 = threading.Thread(target=move, args=(
-                        (datalog[-1][2], datalog[-1][3])))
-                    t1.start()
-            except Exception as e:
-                #print(e)
-                pass
+    #             letter, confidence = doocr(imageprocessed)
+    #             if letter != ' ':
+    #                 datalog.append((letter, confidence, X, Y))
+    #                 datalog = confidence_sort(datalog)
+    #                 print(datalog)
+    #                 t1 = threading.Thread(target=move, args=(
+    #                     (datalog[-1][2], datalog[-1][3])))
+    #                 t1.start()
+    #         except Exception as e:
+    #             #print(e)
+    #             pass
 
     composit = outimg(image, imageprocessed, letter, confidence, fps, fpsproc)
 

@@ -13,6 +13,7 @@ import time
 import string
 import numpy as np
 import pytesseract
+import multiprocessing
 
 #pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files (x86)\Tesseract-OCR\tesseract"  # My computer needs this ;_;
 
@@ -96,48 +97,87 @@ def procimg(image):
             # print(angle)
 
             rotateRequired = 90 + angle
+            angles = [rotateRequired, rotateRequired+90, rotateRequired+180, rotateRequired+270]
             break
 
-      # merge all 4 orientations onto this 1 image for ocr
+    
+    
 
     if screenCnt != []:
         rop = image[y:y + h, x:x + w]
         cv2.drawContours(image,[screenCnt],-1,(0,255,0),5)
         rop = cv2.resize(rop, (250, 250))
-        M = cv2.getRotationMatrix2D((250 / 2, 250 / 2), rotateRequired, 1)
-        M2 = cv2.getRotationMatrix2D((250 / 2, 250 / 2), rotateRequired + 90, 1)
-        M3 = cv2.getRotationMatrix2D((250 / 2, 250 / 2), rotateRequired + 180, 1)
-        M4 = cv2.getRotationMatrix2D((250 / 2, 250 / 2), rotateRequired + 270, 1)
-        dst = cv2.warpAffine(rop, M, (250, 250))[40:210, 40:210]
-        dst2 = cv2.warpAffine(rop, M2, (250, 250))[40:210, 40:210]
-        dst3 = cv2.warpAffine(rop, M3, (250, 250))[40:210, 40:210]
-        dst4 = cv2.warpAffine(rop, M4, (250, 250))[40:210, 40:210]
 
-        preocr[0:170, 0:170] = dst
-        preocr[0:170, 170:200] = (255, 255, 255)
-        preocr[0:170, 200:370] = dst2
-        preocr[0:170, 370:400] = (255, 255, 255)
-        preocr[0:170, 400:570] = dst3
-        preocr[0:170, 570:600] = (255, 255, 255)
-        preocr[0:170, 600:770] = dst4
 
-        preocr = cv2.cvtColor(preocr.astype('uint8'), cv2.COLOR_BGR2GRAY)
+        def rotateTar(angle, tar, q):
+            try:
+                M = cv2.getRotationMatrix2D((250 / 2, 250 / 2), angle, 1)
+                dst = cv2.warpAffine(tar, M, (250, 250))[40:210, 40:210]
+                q.put(dst)
+            except Exception as e:
+                q.put(np.zeros([250,250], dtype=np.uint8))
+                print("rotation err: " + e)
+
+        
+        q = multiprocessing.Queue()
+        processes = []
+
+        for angle in angles:
+            processes.append(multiprocessing.Process(target=rotateTar, args=(angle,rop,q)))
+
+        for process in processes:
+            process.start()
+
+        for process in processes: #wait for all to comlplete
+            process.join()
+        
+        preocr = []
+        while len(preocr) != 4:
+            while not q.empty():
+                preocr.append(q.get)
+
+
+        # M = cv2.getRotationMatrix2D((250 / 2, 250 / 2), rotateRequired, 1)
+        # M2 = cv2.getRotationMatrix2D((250 / 2, 250 / 2), rotateRequired + 90, 1)
+        # M3 = cv2.getRotationMatrix2D((250 / 2, 250 / 2), rotateRequired + 180, 1)
+        # M4 = cv2.getRotationMatrix2D((250 / 2, 250 / 2), rotateRequired + 270, 1)
+        # dst = cv2.warpAffine(rop, M, (250, 250))[40:210, 40:210]
+        # dst2 = cv2.warpAffine(rop, M2, (250, 250))[40:210, 40:210]
+        # dst3 = cv2.warpAffine(rop, M3, (250, 250))[40:210, 40:210]
+        # dst4 = cv2.warpAffine(rop, M4, (250, 250))[40:210, 40:210]
+
+        #preocr[0:170, 0:170] = dst
+        #preocr[0:170, 170:200] = (255, 255, 255)
+        #preocr[0:170, 200:370] = dst2
+        #preocr[0:170, 370:400] = (255, 255, 255)
+        #preocr[0:170, 400:570] = dst3
+        #preocr[0:170, 570:600] = (255, 255, 255)
+        #preocr[0:170, 600:770] = dst4
+
+        #preocr = cv2.cvtColor(preocr.astype('uint8'), cv2.COLOR_BGR2GRAY)
         # cv2.imshow("A",preocr)
-        ret, preocr = cv2.threshold(preocr, 130, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+        #ret, preocr = cv2.threshold(preocr, 130, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
 
-        preocr = cv2.resize(preocr, (250, 80))
+        #preocr = cv2.resize(preocr, (250, 80))
+        #preocr = [dst,dst2,dst3,dst4]
+
 
         return preocr, True, [screenCnt]
 
     return 0, False, 0
 
 
-def doocr(preocr):
+def doocr(inputimg):
     """doocr handles the OCR"""
 
     #preocr = cv2.resize(preocr, (250, 80))
-    ocr = pytesseract.image_to_data(preocr, lang=None, config="--oem 1 --psm 5", nice=-12,
+
+    ocr = pytesseract.image_to_data(inputimg, lang=None, config="--oem 1 --psm 5", nice=-12,
                                     output_type=pytesseract.Output.DATAFRAME)
+    
+    #if __name__ == "__main__"
+    #q2 = multiprocessing.Queue()
+    #process2 = []
 
 #    try:
 #        print(ocr)
@@ -180,13 +220,13 @@ def outimg(image, preocr, letter=' ', confidence=0, fps=0, fpsproc=0):
     #preocr = np.expand_dims(preocr,3)
     
     
-    try:
-        #preocr = cv2.cvtColor(np.uint8(preocr), cv2.COLOR_GRAY2BGR)
-        composit[300:380, 1015:1265] = preocr
+    # try:
+    #     #preocr = cv2.cvtColor(np.uint8(preocr), cv2.COLOR_GRAY2BGR)
+    #     composit[300:380, 1015:1265] = preocr
 
-    except Exception as e:
-        print("Error: ",e)
-        pass
+    # except Exception as e:
+    #     print("Error: ",e)
+    #     pass
     
     composit[100:600, 115:1000] = cv2.resize(image, (885, 500))
 
