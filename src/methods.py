@@ -181,7 +181,7 @@ def outimg(image, preocr, letter=' ', confidence=0, fps=0, fpsproc=0):
     
     
     try:
-        preocr = cv2.cvtColor(preocr.astype('uint8'), cv2.COLOR_GRAY2BGR)
+        #preocr = cv2.cvtColor(np.uint8(preocr), cv2.COLOR_GRAY2BGR)
         composit[300:380, 1015:1265] = preocr
 
     except Exception as e:
