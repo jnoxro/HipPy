@@ -84,8 +84,8 @@ width = 640                        # choose raw image width
 height = 480                       # choose raw image height
 count = 0
 datalog = []
-image = np.zeros([width, height])          # V E C T O R I Z E  -- causing erros with pi cam removed 4 testing
-imageprocessed = np.zeros([80, 250])
+image = np.zeros([width, height], dtype=np.uint8)          # V E C T O R I Z E  -- causing erros with pi cam removed 4 testing
+imageprocessed = np.zeros([80, 250], dtype=np.uint8)
 #composit = np.zeros([720, 1280], dtype=np.uint8)
 composit = np.ndarray((720, 1280, 3), dtype=np.uint8)
 letter, confidence = "", 0
@@ -154,6 +154,7 @@ while True:
         
         fwstart = time.time()
         #cv2.imshow("Out",composit)
+        #print('bloop')
         fakecam.schedule_frame(composit)
         fwend = time.time()
         print(fwend-fwstart)

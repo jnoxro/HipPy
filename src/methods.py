@@ -43,10 +43,10 @@ def getimgwin(camera):
 def procimg(image):
     """ procimg does all the image processing required (filters, edges and rotations) """
     #vectorising
-    #grey = np.zeros([480, 640, 3], dtype=np.uint8)
-    #image = np.zeros([480, 640])
-    #im2 = np.zeros([480, 640])
-    #edged = np.zeros([480, 640])
+    grey = np.zeros([480, 640, 3], dtype=np.uint8)
+    #image = np.zeros([480, 640, 3], dtype=np.uint8)
+    im2 = np.zeros([480, 640], dtype=np.uint8)
+    edged = np.zeros([480, 640], dtype=np.uint8)
     preocr = np.zeros((170, 770, 3), dtype=np.uint8)
     #grey = np.ndarray((3, 480, 640), dtype=np.uint8)
     #im2 = np.ndarray((3, 480, 640), dtype=np.uint8)
@@ -121,7 +121,7 @@ def procimg(image):
         preocr[0:170, 570:600] = (255, 255, 255)
         preocr[0:170, 600:770] = dst4
 
-        preocr = cv2.cvtColor(preocr, cv2.COLOR_BGR2GRAY)
+        preocr = cv2.cvtColor(preocr.astype('uint8'), cv2.COLOR_BGR2GRAY)
         # cv2.imshow("A",preocr)
         ret, preocr = cv2.threshold(preocr, 130, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
 
@@ -181,7 +181,7 @@ def outimg(image, preocr, letter=' ', confidence=0, fps=0, fpsproc=0):
     
     
     try:
-        preocr = cv2.cvtColor(preocr, cv2.COLOR_GRAY2BGR)
+        preocr = cv2.cvtColor(preocr.astype('uint8'), cv2.COLOR_GRAY2BGR)
         composit[300:380, 1015:1265] = preocr
 
     except Exception as e:
