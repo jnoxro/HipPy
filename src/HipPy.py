@@ -117,7 +117,7 @@ while True:
 
         #new
         image = vidstream.read()
-        image = imutils.resize(image, width=640) #only needed when not using picam
+        image = np.uint8(imutils.resize(image, width=640)) #only needed when not using picam
     
     
 
@@ -143,7 +143,7 @@ while True:
                 #print(e)
                 pass
 
-    composit = np.uint8(outimg(image, imageprocessed, letter, confidence, fps, fpsproc))
+    composit = outimg(image, imageprocessed, letter, confidence, fps, fpsproc)
 
     endtime1 = time.time()    ##uncomment for processing fps
 

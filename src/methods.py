@@ -48,9 +48,9 @@ def procimg(image):
     #im2 = np.zeros([480, 640])
     #edged = np.zeros([480, 640])
     preocr = np.zeros((170, 770, 3), dtype=np.uint8)
-    grey = np.ndarray((3, 480, 640), dtype=np.uint8)
-    im2 = np.ndarray((3, 480, 640), dtype=np.uint8)
-    edged = np.ndarray((3, 480, 640), dtype=np.uint8)
+    #grey = np.ndarray((3, 480, 640), dtype=np.uint8)
+    #im2 = np.ndarray((3, 480, 640), dtype=np.uint8)
+    #edged = np.ndarray((3, 480, 640), dtype=np.uint8)
 
 
     grey = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)  # Convert to grey scale
@@ -175,8 +175,8 @@ def doocr(preocr):
 def outimg(image, preocr, letter=' ', confidence=0, fps=0, fpsproc=0):
     """outimg prepares the final output image"""
 
-    #composit = np.zeros((720, 1280, 3), dtype=np.uint8)  # final output feed
-    composit = np.ndarray((720, 1280, 3), dtype=np.uint8)
+    composit = np.zeros((720, 1280, 3), dtype=np.uint8)  # final output feed
+    #composit = np.ndarray((720, 1280, 3), dtype=np.uint8)
     #preocr = np.expand_dims(preocr,3)
     
     
