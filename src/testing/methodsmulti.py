@@ -109,32 +109,53 @@ def procimg(image):
         rop = cv2.resize(rop, (250, 250))
 
 
-        def rotateTar(angle, tar, q):
-            try:
-                M = cv2.getRotationMatrix2D((250 / 2, 250 / 2), angle, 1)
-                dst = cv2.warpAffine(tar, M, (250, 250))[40:210, 40:210]
-                q.put(dst)
-            except Exception as e:
-                q.put(np.zeros([250,250], dtype=np.uint8))
-                print("rotation err: " + e)
-
-        
+                
         q = multiprocessing.Queue()
         processes = []
-
-        for angle in angles:
-            processes.append(multiprocessing.Process(target=rotateTar, args=(angle,rop,q)))
-
-        for process in processes:
-            process.start()
-
-        for process in processes: #wait for all to comlplete
-            process.join()
         
+        print("this far")
+       #  for angle in angles:
+            # print("for angle..")
+            # processes.append(multiprocessing.Process(target=rotateTar, args=(angle,rop,q,)))
+
+        # for process in processes:
+            # print("starting procs")
+            # process.start()
+
+
+        # for process in processes: #wait for all to comlplete
+            # print("joining procs")
+            # process.join()
+           #  print("done here")
+        
+        proc1 = multiprocessing.Process(name="proc1",target=rotateTar, args=(angle,rop,q,))
+        proc2 = multiprocessing.Process(name="proc2",target=rotateTar, args=(angle,rop,q,))
+        proc3 = multiprocessing.Process(name="proc3",target=rotateTar, args=(angle,rop,q,))
+        proc4 = multiprocessing.Process(name="proc4",target=rotateTar, args=(angle,rop,q,))
+
+        # proc1.join() 
+        # proc2.join()
+        # proc3.join()
+        # proc4.join()
+
+        while(proc1.is_alive()):
+            print("kill1 me pls")
+        
+        while(proc2.is_alive()):
+            print("kill2 me pls")
+        
+        while(proc3.is_alive()):
+            print("kill3 me pls")
+        
+        while(proc4.is_alive()):
+            print("kill4 me pls")
+        
+
         preocr = []
         while len(preocr) != 4:
-            while not q.empty():
-                preocr.append(q.get)
+            print("stuck HERE!!!")
+            preocr.append(q.get)
+            print("stuck here")
 
 
         # M = cv2.getRotationMatrix2D((250 / 2, 250 / 2), rotateRequired, 1)
@@ -165,6 +186,16 @@ def procimg(image):
         return preocr, True, [screenCnt]
 
     return 0, False, 0
+
+def rotateTar(angle, tar, q):
+            try:
+                M = cv2.getRotationMatrix2D((250 / 2, 250 / 2), angle, 1)
+                dst = cv2.warpAffine(tar, M, (250, 250))[40:210, 40:210]
+                q.put(dst)
+                print("completed ")
+            except Exception as e:
+                q.put(np.zeros([250,250], dtype=np.uint8))
+                print("rotation err: " + e)
 
 
 def doocr(inputimg):

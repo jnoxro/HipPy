@@ -177,7 +177,7 @@ def outimg(image, preocr, letter=' ', confidence=0, fps=0, fpsproc=0):
 
     composit = np.zeros((720, 1280, 3), dtype=np.uint8)  # final output feed
     #composit = np.ndarray((720, 1280, 3), dtype=np.uint8)
-    #preocr = np.expand_dims(preocr,3)
+    preocr = np.expand_dims(preocr,3)
     
     
     try:
