@@ -116,9 +116,12 @@ while True:
         #_, image = getimgwin(camera)                    # capture image
 
         #new
-        image = vidstream.read()
-        image = np.uint8(imutils.resize(image, width=640)) #only needed when not using picam
-    
+        image1 = vidstream.read()
+        image1 = np.uint8(imutils.resize(image1, width=640)) #only needed when not using picam
+
+        #even faster?:
+        # image1 = cv2.UMat(np.uint8(imutils.resize(image1, width=640))) #only needed when not using picam
+        # image = cv2.UMat(image1)
     
 
     # process the image, Tar = True/False (target found?), contour(target outline)
