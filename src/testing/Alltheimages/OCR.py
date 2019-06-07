@@ -10,11 +10,12 @@ while True:
 
             name = "img" + str(num) + ".png" 
             found = os.path.exists(name)
+            preocr = cv2.imread(name)
             num += 1
             if num > 500:
                 num = 0
 
-    preocr = cv2.imread(name)
+    print(name)
     ocr = pytesseract.image_to_data(preocr, lang=None, config="--oem 1 --psm 5", nice=-12,
                                     output_type=pytesseract.Output.DATAFRAME)
 
