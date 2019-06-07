@@ -44,13 +44,10 @@ def procimg(image):
     """ procimg does all the image processing required (filters, edges and rotations) """
     #vectorising
     grey = np.zeros([480, 640, 3], dtype=np.uint8)
-    #image = np.zeros([480, 640, 3], dtype=np.uint8)
     im2 = np.zeros([480, 640], dtype=np.uint8)
     edged = np.zeros([480, 640], dtype=np.uint8)
     preocr = np.zeros((170, 770, 3), dtype=np.uint8)
-    #grey = np.ndarray((3, 480, 640), dtype=np.uint8)
-    #im2 = np.ndarray((3, 480, 640), dtype=np.uint8)
-    #edged = np.ndarray((3, 480, 640), dtype=np.uint8)
+    
 
 
     grey = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)  # Convert to grey scale
@@ -58,6 +55,7 @@ def procimg(image):
 
     edged = cv2.Canny(grey, 0, 150)
     im2, cnts, hierarchy = cv2.findContours(edged.copy(), cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+    #im2, cnts, hierarchy = cv2.findContours(edged, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE) this for umat, cant copy
 
     cnts = sorted(cnts, key=cv2.contourArea, reverse=True)[:5]
 
