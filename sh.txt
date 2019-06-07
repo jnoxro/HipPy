@@ -1,0 +1,5 @@
+nice -n -9 gst-launch-1.0 v4l2src do-timestamp=true device=/dev/video1 ! video/x-raw,width=80,height=60,framerate=10/1 ! videobox border-alpha=0 top=0 bottom=0 ! videomixer name=mix sink_0::xpos=240 sink_0::ypos=180 sink_0::zorder=10 ! videoconvert ! v4l2sink device=/dev/video3 sync=false v4l2src device=/dev/video0 ! video/x-raw,framerate=30/1,width=320,height=240 ! videoconvert ! mix. &
+
+sleep 5
+
+nice -n -9 gst-launch-1.0 v4l2src device=/dev/video3 ! video/x-raw,width=320,height=240,framerate=25/1 ! omxh264enc control-rate=1 target-bitrate=600000 ! h264parse config-interval=3 ! fdsink fd=1 | nice -n -9 /root/wifibroadcast/tx_rawsock -p 0 -b $VIDEO_BLOCKS -r $VIDEO_FECS -f $VIDEO_BLOCKLENGTH -t $VIDEO_FRAMETYPE -d $VIDEO_WIFI_BITRATE -y 0 $NICS
