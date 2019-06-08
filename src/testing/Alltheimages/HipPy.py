@@ -151,8 +151,8 @@ while True:
 
     endtime1 = time.time()    ##uncomment for processing fps
 
-    if systype ==0:
-        fakecam.schedule_frame(imageprocessed)
+    if systype ==0:?!?jedi=0, ?!?           (*_*frame*_*) ?!?jedi?!?
+        fakecam.schedule_frame(composit)
 
     if systype == 1:
         
