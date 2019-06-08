@@ -3,23 +3,22 @@ import cv2
 import pytesseract
 import string
 #preocr = cv2.resize(preocr, (250, 80))
-path = r'ramdrive/'
 while True:
     found = False
     num = 0
     while not found:
-            name = r'ocrimg' + str(num) + r'.png'
-            found = os.path.exists(os.path.join(path,name))
-            #print(os.path.join(path,name))
+
+            name = "img" + str(num) + ".png" 
+            found = os.path.exists(name)
+            preocr = cv2.imread(name)
             num += 1
             if num > 500:
                 num = 0
 
-    preocr = cv2.imread(os.path.join(path,name))
-    print("OCR NOWWWWWWWWW",preocr)
+    print(name)
     ocr = pytesseract.image_to_data(preocr, lang=None, config="--oem 1 --psm 5", nice=-12,
                                     output_type=pytesseract.Output.DATAFRAME)
-    print("OCR FINISHED")
+
     #    try:
     #        print(ocr)
     #    except Exception as e:
@@ -51,6 +50,6 @@ while True:
             file.write(ocrres[0]+"\n")# ocrres[1]))
             file.close()
             print(ocrres[0])
-    os.remove(os.path.join(path,name))
+    os.remove(name)
         
 

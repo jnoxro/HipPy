@@ -14,8 +14,11 @@ run from terminal with "nice -n -10 python3 HipPy.py" for best resulst (lower nu
 """
 
 import os
+#import fnctl
 import sys
 import threading                        # import threading for multithreading
+import multiprocessing
+from multiprocessing import Process
 import cv2                              # import image processing library
 import numpy as np                      # import numpy
 import time                             # import time(for timing)
@@ -35,14 +38,15 @@ if systype == 0:
 
     """old image capture, may not be needed"""
     # import picamera libraries only if on the pi
-    from picamera.array import PiRGBArray
-    from picamera import PiCamera       # import library to interface pi camera
-    camera = PiCamera()
-    camera.resolution = (640, 480)
-    rawCapture = PiRGBArray(camera)
+#    from picamera.array import PiRGBArray
+#    from picamera import PiCamera       # import library to interface pi camera
+#    camera = PiCamera()
+#    camera.resolution = (640, 480)
+#    rawCapture = PiRGBArray(camera)
 
     """new #supercool image capture - needs testing"""
-    #vidstream = VideoStream(src=0, usePiCamera=True, resolution=(640,480), framerate=32).start()
+    vidstream = VideoStream(src=0, usePiCamera=True, resolution=(640,480), framerate=32).start()
+    time.sleep(2.0)
 
 
 
@@ -67,6 +71,7 @@ while int(num) < 10:
     try:
         videodevice = '/dev/video' + num
         fakecam = pfw.FakeWebcam(videodevice, 1280, 720)
+      #  device = open(videodevice, 'wb')
         print("video device: "+num)
         break
     except Exception as e:
@@ -92,7 +97,8 @@ letter, confidence = "", 0
 X, Y = 0, 0
 letter, confidence = "", 0
 fps, fpsold, fpsproc, fpsprocold = 0, 0, 0, 0
-
+outimages = []
+outimagescount, sentimages = 0, 0
 
 def move(location, gps):
     """ code here for moving, will be moved to methods.py """
@@ -100,16 +106,23 @@ def move(location, gps):
     print("im so moved", location, gps)
 
 
+def imagewriter(img, num=0):
+    fakecam.schedule_frame(img)    
+    print("ok: " ,num)
+    return
+
+
+
 while True:
     begintime = time.time()
 
     if systype == 0:                           # if on pi
         #og method
-        image = getimg(camera, rawCapture)     # Capture image
-        rawCapture.truncate(0)
+       # image = getimg(camera, rawCapture)     # Capture image
+       # rawCapture.truncate(0)
 
         #new - needs testing - should increase fps by a decent amount (when tesseract not running):
-        #image = vidstream.read()
+        image = vidstream.read()
 
     if systype == 1:                           # if on laptop
         #og:
@@ -150,8 +163,37 @@ while True:
 
     endtime1 = time.time()    ##uncomment for processing fps
 
+   
     if systype ==0:
-        fakecam.schedule_frame(composit)
+        fwstart = time.time()
+#        fakecam.schedule_frame(composit)  #works
+#        device.write(output) #doesnt work
+
+        if outimagescount > 100:
+            outimages = []
+            outimagescount = 0
+            sentimages = 0
+
+        outimages.append(composit) #almost instant :)
+        outimagescount = outimagescount + 1
+        threads = []
+        
+        if sentimages < outimagescount - 1:
+            threads.append(Process(target=imagewriter, args=(outimages[sentimages],1,)))
+            threads.append(Process(target=imagewriter, args=(outimages[sentimages+1],2,)))
+            threads.append(Process(target=imagewriter, args=(outimages[sentimages+1],3,)))
+            threads.append(Process(target=imagewriter, args=(outimages[sentimages+1],4,)))
+
+            sentimages = sentimages+2
+
+            for thread in threads:
+                thread.start()
+            
+   
+
+
+        fwend = time.time()
+        print(fwend-fwstart)
 
     if systype == 1:
         
@@ -173,8 +215,7 @@ while True:
     fpsproc = round((fpsproc + fpsprocold)/2)
 
     
-    
-    
+
     
 
     

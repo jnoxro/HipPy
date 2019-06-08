@@ -1,3 +1,4 @@
+
 """
 Hex Image Processing with Python
 
@@ -35,14 +36,15 @@ if systype == 0:
 
     """old image capture, may not be needed"""
     # import picamera libraries only if on the pi
-    from picamera.array import PiRGBArray
-    from picamera import PiCamera       # import library to interface pi camera
-    camera = PiCamera()
-    camera.resolution = (640, 480)
-    rawCapture = PiRGBArray(camera)
+   # from picamera.array import PiRGBArray
+   # from picamera import PiCamera       # import library to interface pi camera
+   # camera = PiCamera()
+   # camera.resolution = (640, 480)
+   # rawCapture = PiRGBArray(camera)
 
     """new #supercool image capture - needs testing"""
-    #vidstream = VideoStream(src=0, usePiCamera=True, resolution=(640,480), framerate=32).start()
+    vidstream = VideoStream(src=0, usePiCamera=True, resolution=(640,480), framerate=32).start()
+    time.sleep(1.0)
 
 
 
@@ -53,6 +55,7 @@ elif systype == 1:
 
     """new #supercool image capture"""
     vidstream = VideoStream(src=0, usePiCamera=False, resolution=(640,480), framerate=32).start()
+#    time.sleep(2.0)
 
 
 else:  # systype = 2
@@ -65,13 +68,15 @@ import subprocess
 num = '1' #start from 1 so video0 (picam) isnt used - we can set device manually to avoid th need for this later on
 while int(num) < 10:
     try:
-        videodevice = '/dev/video' + num
-        fakecam = pfw.FakeWebcam(videodevice, 1280, 720)
-        print("video device: "+num)
+        #videodevice = '/dev/video' + num
+        #fakecam = pfw.FakeWebcam(videodevice, 1280, 720)
+        print("Here we go")
+        pass
         break
     except Exception as e:
-        print("not /dev/video"+num, e)
-        num = str(int(num)+1)
+        #print("not /dev/video"+num, e)
+        #num = str(int(num)+1)
+        pass
 
 if int(num) == 10:
     print(" Have you tried: \nsudo modprobe v4l2loopback devices=1\nv4l2-ctl - -list-devices\nfind device name from list(called dummy device)")
@@ -92,7 +97,8 @@ letter, confidence = "", 0
 X, Y = 0, 0
 letter, confidence = "", 0
 fps, fpsold, fpsproc, fpsprocold = 0, 0, 0, 0
-num=0
+num,compcount = 0, 0
+path = r'ramdrive/'
 
 def move(location, gps):
     """ code here for moving, will be moved to methods.py """
@@ -105,11 +111,11 @@ while True:
 
     if systype == 0:                           # if on pi
         #og method
-        image = getimg(camera, rawCapture)     # Capture image
-        rawCapture.truncate(0)
+        #image = getimg(camera, rawCapture)     # Capture image
+        #rawCapture.truncate(0)
 
         #new - needs testing - should increase fps by a decent amount (when tesseract not running):
-        #image = vidstream.read()
+        image = vidstream.read()
 
     if systype == 1:                           # if on laptop
         #og:
@@ -127,12 +133,12 @@ while True:
     if tar:
         count = count + 1
 
-        if count == 1:
+        if count == 4:
             count = 0
             try:
-                name = "img" + str(num) + ".png"
-                cv2.imwrite(name,imageprocessed)
-                num+=1
+                name = r'ocrimg' + str(num) + r'.png'
+                print( cv2.imwrite(os.path.join(path,name),imageprocessed))
+                num = num + 1
                 file = open("log.txt","r")
                 letter = file.read()[-2]
                 file.close()
@@ -152,7 +158,25 @@ while True:
     endtime1 = time.time()    ##uncomment for processing fps
 
     if systype ==0:
-        fakecam.schedule_frame(composit)
+        #fakecam.schedule_frame(composit)
+
+        fwstart = time.time()
+
+        #fakecam.schedule_frame(composit) #ew
+        try:
+            name2 = r'img' + str(compcount) + r'.bmp'
+            #print(str(name2))
+            #print(str(path))
+            cv2.imwrite(os.path.join(path,name2), composit) 
+            compcount = compcount+1
+            #print(compcount)
+            if compcount >= 100:
+                name3 = r'img' + str(compcount-100) + r'.bmp'
+                os.remove(os.path.join(path,name3))
+        except Exception as e:
+            print(e)
+
+        fwend = time.time()
 
     if systype == 1:
         
@@ -172,7 +196,7 @@ while True:
     fpsproc = 1/processingtime
     fps = round((fps + fpsold)/2)
     fpsproc = round((fpsproc + fpsprocold)/2)
-
+#   print(fps)
     
     
     
