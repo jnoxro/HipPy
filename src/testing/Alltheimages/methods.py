@@ -117,7 +117,7 @@ def procimg(image):
         preocr[0:170, 170:200] = (255, 255, 255)
         preocr[0:170, 200:370] = dst2
         preocr[0:170, 370:400] = (255, 255, 255)
-        preocr[0:170, 400:570] = dst3
+        preocr[0:170, 400:570] = dst
         preocr[0:170, 570:600] = (255, 255, 255)
         preocr[0:170, 600:770] = dst4
 
@@ -175,29 +175,29 @@ def doocr(preocr):
 def outimg(image, preocr, letter=' ', confidence=0, fps=0, fpsproc=0):
     """outimg prepares the final output image"""
 
-    composit = np.zeros((720, 1280, 3), dtype=np.uint8)  # final output feed
+    # composit = np.zeros((720, 1280, 3), dtype=np.uint8)  # final output feed
     #composit = np.ndarray((720, 1280, 3), dtype=np.uint8)
     preocr = np.expand_dims(preocr,3)
     
-    
+    composit = np.zeros((200, 250, 3), dtype=np.uint8)
     try:
         #preocr = cv2.cvtColor(np.uint8(preocr), cv2.COLOR_GRAY2BGR)
-        composit[300:380, 1015:1265] = preocr
+        composit[0:80, 0:250] = preocr
 
     except Exception as e:
         print("Error: ",e)
         pass
     
-    composit[100:600, 115:1000] = cv2.resize(image, (885, 500))
+    # composit[100:600, 115:1000] = cv2.resize(image, (885, 500))
 
-    cv2.putText(composit, "Detected:     Confidence:", (1050, 400), cv2.FONT_HERSHEY_COMPLEX, 0.5, (255, 255, 255), 1)
+    cv2.putText(composit, "Detected:", (0, 100), cv2.FONT_HERSHEY_COMPLEX, 0.5, (255, 255, 255, 255), 1)
     #cv2.putText(composit, "Confidence:", (1150, 400), cv2.FONT_HERSHEY_COMPLEX, 0.5, (255, 255, 255), 1)
 
-    cv2.putText(composit, letter, (1050, 475), cv2.FONT_HERSHEY_COMPLEX, 2, (255, 255, 255), 1)
-    cv2.putText(composit, str(confidence), (1150, 475), cv2.FONT_HERSHEY_COMPLEX, 1.5, (255, 255, 255), 1)
-    cv2.putText(composit, "%", (1230, 450), cv2.FONT_HERSHEY_COMPLEX, 0.7, (255, 255, 255), 1)
-    cv2.putText(composit, str(fps), (50, 50), cv2.FONT_HERSHEY_COMPLEX, 0.5, (255, 255, 255), 1)
-    cv2.putText(composit, str(fpsproc), (50, 70), cv2.FONT_HERSHEY_COMPLEX, 0.5, (255, 255, 255), 1)
+    cv2.putText(composit, letter, (125,150 ), cv2.FONT_HERSHEY_COMPLEX, 2, (255, 255, 255, 255), 1)
+   # \ cv2.putText(composit, str(confidence), (1150, 475), cv2.FONT_HERSHEY_COMPLEX, 1.5, (255, 255, 255, 255), 1)
+    # cv2.putText(composit, "%", (1230, 450), cv2.FONT_HERSHEY_COMPLEX, 0.7, (255, 255, 255, 255), 1)
+    # cv2.putText(composit, str(fps)# , (50, 50), cv2.FONT_HERSHEY_COMPLEX, 0.5, (255, 255, 255, 255), 1)
+    # cv2.putText(composit, str(fpsproc), (50, 70), cv2.FONT_HERSHEY_COMPLEX, 0.5, (255, 255, 255, 255), 1)
 
 
     return composit
