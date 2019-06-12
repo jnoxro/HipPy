@@ -47,7 +47,7 @@ def procimg(image):
     #image = np.zeros([480, 640, 3], dtype=np.uint8)
     im2 = np.zeros([480, 640], dtype=np.uint8)
     edged = np.zeros([480, 640], dtype=np.uint8)
-    preocr = np.zeros((170, 680, 3), dtype=np.uint8)
+    #preocr = np.zeros((170, 680, 3), dtype=np.uint8)
     #grey = np.ndarray((3, 480, 640), dtype=np.uint8)
     #im2 = np.ndarray((3, 480, 640), dtype=np.uint8)
     #edged = np.ndarray((3, 480, 640), dtype=np.uint8)
@@ -103,32 +103,42 @@ def procimg(image):
       # merge all 4 orientations onto this 1 image for ocr
 
     if screenCnt != []:
-        try:
-            rop = image[y:y+h, x:x+w]   
-            cv2.drawContours(image,[screenCnt],-1,(0,255,0),5)
-            rop = cv2.resize(rop, (250, 250))
-        except:
-            rop = image[y:y+h, x:x+w]   
-            cv2.drawContours(image,[screenCnt],-1,(0,255,0),5)
-            rop = cv2.resize(rop, (250, 250))
-
+        #try:
+        rop = image[y:y+h, x:x+w]   
+        cv2.drawContours(image,[screenCnt],-1,(0,255,0),5)
+        rop = cv2.resize(rop, (250, 250))
+        #except:
+           # rop = image[y:y+h, x:x+w]   
+           # cv2.drawContours(image,[screenCnt],-1,(0,255,0),5)
+           # rop = cv2.resize(rop, (250, 250))
+        #print("----------------- ANGLE:", rotateRequired)
         M = cv2.getRotationMatrix2D((250 / 2, 250 / 2), rotateRequired, 1)
         M2 = cv2.getRotationMatrix2D((250 / 2, 250 / 2), rotateRequired + 90, 1)
         M3 = cv2.getRotationMatrix2D((250 / 2, 250 / 2), rotateRequired + 180, 1)
         M4 = cv2.getRotationMatrix2D((250 / 2, 250 / 2), rotateRequired + 270, 1)
-        dst = cv2.warpAffine(rop, M, (250, 250))[40:210, 40:210]
-        dst2 = cv2.warpAffine(rop, M2, (250, 250))[40:210, 40:210]
-        dst3 = cv2.warpAffine(rop, M3, (250, 250))[40:210, 40:210]
-        dst4 = cv2.warpAffine(rop, M4, (250, 250))[40:210, 40:210]
+        dst = cv2.warpAffine(rop, M, (250, 250))#[40:210, 40:210]
+        dst2 = cv2.warpAffine(rop, M2, (250, 250))#[40:210, 40:210]
+        dst3 = cv2.warpAffine(rop, M3, (250, 250))#[40:210, 40:210]
+        dst4 = cv2.warpAffine(rop, M4, (250, 250))#[40:210, 40:210]
+        
+        #the closer rotateRequired gets to 45 the more clop required, 0 and 90 degrees require 40-210 out of 50
+        cropcal = 0.00
+        cropval = abs(45-rotateRequired)
+        cropval = (45-cropval)/45
+        cropval = round(35 + (cropval*25))
+        print(cropval)
 
-        preocr[0:250, 0:170] = dst
-        preocr[0:250, 170:340] = dst2
-        preocr[0:250, 340:510] = dst3
-        preocr[0:250, 510:680] = dst4
+        preocr = cv2.hconcat([dst[cropval:250-cropval, cropval:250-cropval], dst2[cropval:250-cropval, cropval:250-cropval], dst3[cropval:250-cropval, cropval:250-cropval], dst4[cropval:250-cropval, cropval:250-cropval]])
+        
+
+        #preocr[0:170, 0:170] = dst    #if this breaks try 0:250 for first size
+        #preocr[0:170, 170:340] = dst2
+        #preocr[0:170, 340:510] = dst3
+        #preocr[0:170, 510:680] = dst4
 
         preocr = cv2.cvtColor(preocr.astype('uint8'), cv2.COLOR_BGR2GRAY)
         # cv2.imshow("A",preocr)
-        ret, preocr = cv2.threshold(preocr, 100, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+        ret, preocr = cv2.threshold(preocr, 100, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
         #ret, preocr = cv2.threshold(preocr, 130, 255, cv2.THRESH_TRUNC)
 
         preocr = cv2.resize(preocr, (250, 80))
@@ -178,7 +188,7 @@ def doocr(preocr):
             return (' ',' ')
 
 
-def outimg(image, preocr, lat, long, letter=' ', confidence=0, fps=0, fpsproc=0):
+def outimg(image, preocr, lat='0', long='0', letter=' ', confidence=0, fps=0, fpsproc=0):
     """outimg prepares the final output image"""
 
     composit = np.zeros((720, 1280, 3), dtype=np.uint8)  # final output feed
@@ -196,16 +206,15 @@ def outimg(image, preocr, lat, long, letter=' ', confidence=0, fps=0, fpsproc=0)
     
     composit[100:600, 115:1000] = cv2.resize(image, (885, 500))
 
-    cv2.putText(composit, "Detected:     Confidence:", (1050, 400), cv2.FONT_HERSHEY_COMPLEX, 0.5, (255, 255, 255), 1)
+    cv2.putText(composit, "Detected:     Coordinates:", (1010, 400), cv2.FONT_HERSHEY_COMPLEX, 0.5, (255, 255, 255), 1)
     #cv2.putText(composit, "Confidence:", (1150, 400), cv2.FONT_HERSHEY_COMPLEX, 0.5, (255, 255, 255), 1)
-
     cv2.putText(composit, letter, (1050, 475), cv2.FONT_HERSHEY_COMPLEX, 2, (255, 255, 255), 1)
-    cv2.putText(composit, str(confidence), (1150, 475), cv2.FONT_HERSHEY_COMPLEX, 1.5, (255, 255, 255), 1)
-    cv2.putText(composit, "%", (1230, 450), cv2.FONT_HERSHEY_COMPLEX, 0.7, (255, 255, 255), 1)
+    cv2.putText(composit, str(lat), (1130, 440), cv2.FONT_HERSHEY_COMPLEX, 0.7, (255, 255, 255), 1)
+    cv2.putText(composit, str(long), (1130, 465), cv2.FONT_HERSHEY_COMPLEX, 0.7, (255, 255, 255), 1)
     cv2.putText(composit, str(fps), (50, 50), cv2.FONT_HERSHEY_COMPLEX, 0.5, (255, 255, 255), 1)
     cv2.putText(composit, str(fpsproc), (50, 70), cv2.FONT_HERSHEY_COMPLEX, 0.5, (255, 255, 255), 1)
-    cv2.putText(composit, str(lat), (80, 50), cv2.FONT_HERSHEY_COMPLEX, 0.5, (255, 255, 255), 1)
-    cv2.putText(composit, str(long), (150, 50), cv2.FONT_HERSHEY_COMPLEX, 0.5, (255, 255, 255), 1)
+    #cv2.putText(composit, str(lat), (80, 50), cv2.FONT_HERSHEY_COMPLEX, 0.5, (255, 255, 255), 1)
+    #cv2.putText(composit, str(long), (150, 50), cv2.FONT_HERSHEY_COMPLEX, 0.5, (255, 255, 255), 1)
 
 
     return composit

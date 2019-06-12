@@ -61,13 +61,13 @@ elif systype == 1:
 else:  # systype = 2
     camera = cv2.VideoCapture(0)
 
-if systype == 0:
-    RX = 18
-    TX = 23
-    pi = pigpio.pi()
-    pi.set_mode(RX, pigpio.INPUT)
-    pi.set_mode(TX, pigpio.OUTPUT)
-    pi.wave_clear()
+#if systype == 0:
+#    RX = 18
+#    TX = 23
+#    pi = pigpio.pi()
+#    pi.set_mode(RX, pigpio.INPUT)
+#    pi.set_mode(TX, pigpio.OUTPUT)
+#    pi.wave_clear()
 
 
 #import pyfakewebcam as pfw
@@ -184,7 +184,7 @@ while True:
                     # print(long,lat)
     
                 file = open("log.txt","r")
-                tardata = file.readlines()[-1]
+                tardata = file.readlines()[-1].rstrip('\n')
                 print("---------------", tardata)
                 try:
                     letter,lat,long = [x for x in tardata.split(",")]  #tardata.split(",")  

@@ -3,12 +3,24 @@ import cv2
 import pytesseract
 import string
 import time
+import pigpio
 #preocr = cv2.resize(preocr, (250, 80))
 path = r'ramdrive/'
 ocrcount = 0
 gpscoords = 0.00,0.00
 
-import pigpio
+
+
+RX = 18
+TX = 23
+pi = pigpio.pi()
+pi.set_mode(RX, pigpio.INPUT)
+pi.set_mode(TX, pigpio.OUTPUT)
+pi.wave_clear()
+
+
+
+
 
 
 def getgps():
@@ -21,7 +33,7 @@ def getgps():
     data = ''
     #time.sleep(1)
     pi.bb_serial_read_open(RX, 9600, 8)
-    time.sleep(1)
+    time.sleep(0.3)
     reqtime = time.time()
     while 1:
         print("---------------waiting for GPS response")
@@ -30,7 +42,7 @@ def getgps():
             print("---------------GPS data received")
             pi.bb_serial_read_close(RX)
             return data
-        time.sleep(0.5)
+        time.sleep(0.3)
 
 
 
@@ -48,9 +60,10 @@ while True:
         if num > 500:
             num = 0
 
-     
+    gpsoutput = getgps()
+        
     try:
-        gpscoords = getgps.decode()
+        gpscoords = gpsoutput.decode()
     except:
         gpscoords = 5.00,5.00
                     
@@ -100,7 +113,9 @@ while True:
             #letter = ocrres[0]
             #confidence = ocrres[1]
             file = open("log.txt","a")
-            file.write(ocrres[0]+","+lat+","+long+"\n")# ocrres[1]))
+            #file.write(ocrres[0]+","+str(lat)+","+str(long))# ocrres[1]))
+            ocrstring = str(ocrres[0]+","+str(lat)+","+str(long))
+            print(ocrstring, file=file)
             file.close()
             print("---------------", ocrres[0])
             ocrcount += 1
@@ -109,9 +124,11 @@ while True:
     if ocrcount >= 3:
         print("---------------OCR SLEEPING")
         file = open("log.txt","a")
-        file.write("SLEEP")       
-        time.sleep(30)
+        print("SLEEP", file=file)       
+        time.sleep(15)
         print("---------------OCR RESTARTING")
+        print("RESTART", file=file)
+        file.close()
         ocrcount = 0
         files = os.listdir(path)
         for file in files:
