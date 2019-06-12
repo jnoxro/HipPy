@@ -126,12 +126,13 @@ def procimg(image):
         cropval = abs(45-rotateRequired)
         cropval = (45-cropval)/45
         cropval = round(35 + (cropval*25))
-        print(cropval)
+       # print(cropval)
 
         preocr = cv2.hconcat([dst[cropval:250-cropval, cropval:250-cropval], dst2[cropval:250-cropval, cropval:250-cropval], dst3[cropval:250-cropval, cropval:250-cropval], dst4[cropval:250-cropval, cropval:250-cropval]])
            
         kernel = np.ones((5,5),np.uint8)        
         preocr = cv2.morphologyEx(preocr, cv2.MORPH_CLOSE, kernel)  
+        preocr = cv2.GaussianBlur(preocr, (3, 3), 1)  # Blur image to get rid of some noise (adjust this for less noise)
 
         #preocr[0:170, 0:170] = dst    #if this breaks try 0:250 for first size
         #preocr[0:170, 170:340] = dst2
@@ -143,7 +144,7 @@ def procimg(image):
         ret, preocr = cv2.threshold(preocr, 100, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
         #ret, preocr = cv2.threshold(preocr, 130, 255, cv2.THRESH_TRUNC)
 
-        preocr = cv2.resize(preocr, (250, 80))
+        preocr = cv2.resize(preocr, (250, 80), interpolation=cv2.INTER_AREA)
 
         return preocr, True, [screenCnt]
 
