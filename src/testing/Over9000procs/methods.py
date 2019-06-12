@@ -129,7 +129,9 @@ def procimg(image):
         print(cropval)
 
         preocr = cv2.hconcat([dst[cropval:250-cropval, cropval:250-cropval], dst2[cropval:250-cropval, cropval:250-cropval], dst3[cropval:250-cropval, cropval:250-cropval], dst4[cropval:250-cropval, cropval:250-cropval]])
-        
+           
+        kernel = np.ones((5,5),np.uint8)        
+        preocr = cv2.morphologyEx(preocr, cv2.MORPH_CLOSE, kernel)  
 
         #preocr[0:170, 0:170] = dst    #if this breaks try 0:250 for first size
         #preocr[0:170, 170:340] = dst2
