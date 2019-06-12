@@ -2,11 +2,8 @@ import os
 import cv2
 import pytesseract
 import string
-import time
 #preocr = cv2.resize(preocr, (250, 80))
 path = r'ramdrive/'
-ocrcount = 0
-
 while True:
     found = False
     num = 0
@@ -17,16 +14,11 @@ while True:
             num += 1
             if num > 500:
                 num = 0
-    
+
     preocr = cv2.imread(os.path.join(path,name))
     print("OCR NOWWWWWWWWW",preocr)
-    
-    try:
-        ocr = pytesseract.image_to_data(preocr, lang=None, config="--oem 1 --psm 5", nice=-12,
+    ocr = pytesseract.image_to_data(preocr, lang=None, config="--oem 1 --psm 5", nice=-12,
                                     output_type=pytesseract.Output.DATAFRAME)
-    except Exception as e:
-        print(e)
-
     print("OCR FINISHED")
     #    try:
     #        print(ocr)
@@ -59,18 +51,6 @@ while True:
             file.write(ocrres[0]+"\n")# ocrres[1]))
             file.close()
             print(ocrres[0])
-            ocrcount += 1
-
     os.remove(os.path.join(path,name))
-    if ocrcount >= 3:
-        print("OCR SLEEPPPPING")
-        file = open("log.txt","a")
-        file.write("SLEEP")       
-        time.sleep(30)
-        print("AWOKE")
-        ocrcount = 0
-        files = os.listdir(path)
-        for file in files:
-            if file.endswith(".png"):
-                os.remove(os.path.join(path,file))
-        print("LMAO I DIDNT CRASH YOURE JUST RETARDED")
+        
+

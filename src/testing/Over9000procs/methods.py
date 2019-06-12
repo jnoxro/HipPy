@@ -47,7 +47,7 @@ def procimg(image):
     #image = np.zeros([480, 640, 3], dtype=np.uint8)
     im2 = np.zeros([480, 640], dtype=np.uint8)
     edged = np.zeros([480, 640], dtype=np.uint8)
-    preocr = np.zeros((170, 770, 3), dtype=np.uint8)
+    preocr = np.zeros((170, 680, 3), dtype=np.uint8)
     #grey = np.ndarray((3, 480, 640), dtype=np.uint8)
     #im2 = np.ndarray((3, 480, 640), dtype=np.uint8)
     #edged = np.ndarray((3, 480, 640), dtype=np.uint8)
@@ -60,8 +60,10 @@ def procimg(image):
     im2, cnts, hierarchy = cv2.findContours(edged.copy(), cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
 
     cnts = sorted(cnts, key=cv2.contourArea, reverse=True)[1:5]
-
+    #cnts = cnts.reverse()
     screenCnt = []
+    
+
     for c in cnts:
         # approximate the contour
         # Perimeter of the contour, True specifies whether shape is a closed contour (or curve)
@@ -101,9 +103,15 @@ def procimg(image):
       # merge all 4 orientations onto this 1 image for ocr
 
     if screenCnt != []:
-        rop = image[y:y + h, x:x + w]
-        cv2.drawContours(image,[screenCnt],-1,(0,255,0),5)
-        rop = cv2.resize(rop, (250, 250))
+        try:
+            rop = image[y:y+h, x:x+w]   
+            cv2.drawContours(image,[screenCnt],-1,(0,255,0),5)
+            rop = cv2.resize(rop, (250, 250))
+        except:
+            rop = image[y:y+h, x:x+w]   
+            cv2.drawContours(image,[screenCnt],-1,(0,255,0),5)
+            rop = cv2.resize(rop, (250, 250))
+
         M = cv2.getRotationMatrix2D((250 / 2, 250 / 2), rotateRequired, 1)
         M2 = cv2.getRotationMatrix2D((250 / 2, 250 / 2), rotateRequired + 90, 1)
         M3 = cv2.getRotationMatrix2D((250 / 2, 250 / 2), rotateRequired + 180, 1)
@@ -113,17 +121,15 @@ def procimg(image):
         dst3 = cv2.warpAffine(rop, M3, (250, 250))[40:210, 40:210]
         dst4 = cv2.warpAffine(rop, M4, (250, 250))[40:210, 40:210]
 
-        preocr[0:170, 0:170] = dst
-        preocr[0:170, 170:200] = (255, 255, 255)
-        preocr[0:170, 200:370] = dst2
-        preocr[0:170, 370:400] = (255, 255, 255)
-        preocr[0:170, 400:570] = dst3
-        preocr[0:170, 570:600] = (255, 255, 255)
-        preocr[0:170, 600:770] = dst4
+        preocr[0:250, 0:170] = dst
+        preocr[0:250, 170:340] = dst2
+        preocr[0:250, 340:510] = dst3
+        preocr[0:250, 510:680] = dst4
 
         preocr = cv2.cvtColor(preocr.astype('uint8'), cv2.COLOR_BGR2GRAY)
         # cv2.imshow("A",preocr)
-        ret, preocr = cv2.threshold(preocr, 130, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+        ret, preocr = cv2.threshold(preocr, 100, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+        #ret, preocr = cv2.threshold(preocr, 130, 255, cv2.THRESH_TRUNC)
 
         preocr = cv2.resize(preocr, (250, 80))
 
