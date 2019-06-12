@@ -77,7 +77,7 @@ if systype == 0:
 #    try:
         #videodevice = '/dev/video' + num
         #fakecam = pfw.FakeWebcam(videodevice, 1280, 720)
-print("Here we go") #mario 4 lyf
+print("--------------- HipPy RUNNING") #mario 4 lyf
 #        pass
 #        break
 #    except Exception as e:
@@ -107,32 +107,34 @@ X, Y = 0, 0
 letter, confidence = "", 0
 fps, fpsold, fpsproc, fpsprocold = 0, 0, 0, 0
 num, compcount = 0, 0
+lat,long = 2.00,2.00
 path = r'ramdrive/'
+
 
 def move(location, gps):
     """ code here for moving, will be moved to methods.py """
 
     # print("im so moved", location, gps)
 
-def getgps():
-    pi.wave_clear()
-    pi.wave_add_serial(TX, 9600, 'tar')
-    tarwave = pi.wave_create()
-    print("sending GPS request")
-    pi.wave_send_once(tarwave)
-    rec = 0
-    data = ''
-    reqtime = time.time()
-    while rec != 1:
-        print("waiting for response")
-        (rec, data) = pi.bb_serial_read(RX)
-        waittime = time.time()
-        waittime = waittime - reqtime
-        if waittime > 10:
-            print("Timed out")
-            break
-        #time.sleep(1)
-    return data
+#def getgps():
+#    pi.wave_clear()
+#    pi.wave_add_serial(TX, 9600, 'tar')
+#    tarwave = pi.wave_create()
+#    print("sending GPS request")
+#    pi.wave_send_once(tarwave)
+#    rec = 0
+#    data = ''
+#    #time.sleep(1)
+#    pi.bb_serial_read_open(RX, 9600, 8)
+#    time.sleep(1)
+#    reqtime = time.time()
+#    while 1:
+#        print("waiting for response")
+#        (rec, data) = pi.bb_serial_read(RX)    
+#        if rec:
+#            pi.bb_serial_read_close(RX)
+#            return data
+#        time.sleep(0.5)
    
     
 
@@ -169,32 +171,46 @@ while True:
             count = 0
             
             try:
-                gpscoords = getgps()
-                print("gps received :)")
-                print(gpscoords)    
+                #gpscoords = getgps().decode()
+                
+                #if not gpscoords == '':
+                   # print("gps received :)")
+                   # print(gpscoords)
+                   # long,lat = [float(x) for x in gpscoords.split(",")]
+                #else:
+                   # long,lat = 5,5
+                
+                #for i in range(20):
+                    # print(long,lat)
+    
                 file = open("log.txt","r")
-                flag = file.readlines()[-1]  
-                file.seek(0,0)
-                letter = file.read()[-2]                    
+                tardata = file.readlines()[-1]
+                print("---------------", tardata)
+                try:
+                    letter,lat,long = [x for x in tardata.split(",")]  #tardata.split(",")  
+                except:
+                    print("--------------- Unable to parse log")
+                #file.seek(0,0)
+                #letter = file.read()[-2]                    
                 file.close()    
                 name = r'ocrimg' + str(num) + r'.png'
-                print( cv2.imwrite(os.path.join(path,name),imageprocessed))
+                print("--------------- Image saved to ram?: ", cv2.imwrite(os.path.join(path,name),imageprocessed))
                 num = num + 1
                 
     
                 if letter != ' ' and letter != '' and letter != '\n':
                     datalog.append((letter, confidence, X, Y))
                     datalog = confidence_sort(datalog)
-                    print(datalog)
+                    print("---------------",datalog)
                     t1 = threading.Thread(target=move, args=(
                            (datalog[-1][2], datalog[-1][3])))
                     t1.start()
 
             except Exception as e:
-                print(e)
+                print("---------------",e)
 
 
-    composit = outimg(image, imageprocessed, letter, confidence, fps, fpsproc)
+    composit = outimg(image, imageprocessed, lat, long, letter, confidence, fps, fpsproc)
 
     endtime1 = time.time()    ##uncomment for processing fps
 

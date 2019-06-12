@@ -6,20 +6,64 @@ import time
 #preocr = cv2.resize(preocr, (250, 80))
 path = r'ramdrive/'
 ocrcount = 0
+gpscoords = 0.00,0.00
+
+import pigpio
+
+
+def getgps():
+    pi.wave_clear()
+    pi.wave_add_serial(TX, 9600, 'tar')
+    tarwave = pi.wave_create()
+    print("---------------sending GPS request")
+    pi.wave_send_once(tarwave)
+    rec = 0
+    data = ''
+    #time.sleep(1)
+    pi.bb_serial_read_open(RX, 9600, 8)
+    time.sleep(1)
+    reqtime = time.time()
+    while 1:
+        print("---------------waiting for GPS response")
+        (rec, data) = pi.bb_serial_read(RX)    
+        if rec:
+            print("---------------GPS data received")
+            pi.bb_serial_read_close(RX)
+            return data
+        time.sleep(0.5)
+
+
+
+
+
 
 while True:
     found = False
     num = 0
     while not found:
-            name = r'ocrimg' + str(num) + r'.png'
-            found = os.path.exists(os.path.join(path,name))
-            #print(os.path.join(path,name))
-            num += 1
-            if num > 500:
-                num = 0
-    
+        name = r'ocrimg' + str(num) + r'.png'
+        found = os.path.exists(os.path.join(path,name))
+        #print(os.path.join(path,name))
+        num += 1
+        if num > 500:
+            num = 0
+
+     
+    try:
+        gpscoords = getgps.decode()
+    except:
+        gpscoords = 5.00,5.00
+                    
+    if not gpscoords == (5.00,5.00):
+        #print("gps received :)")
+        print("---------------GPS: ", gpscoords)
+        long,lat = [float(x) for x in gpscoords.split(",")]
+    else:
+        print("---------------DEFAULTED GPS TO 5.00,5.00")
+        long,lat = 5.00,5.00
+
     preocr = cv2.imread(os.path.join(path,name))
-    print("OCR NOWWWWWWWWW",preocr)
+    print("---------------OCR NOW")
     
     try:
         ocr = pytesseract.image_to_data(preocr, lang=None, config="--oem 1 --psm 5", nice=-12,
@@ -27,7 +71,7 @@ while True:
     except Exception as e:
         print(e)
 
-    print("OCR FINISHED")
+    print("---------------OCR FINISHED")
     #    try:
     #        print(ocr)
     #    except Exception as e:
@@ -56,21 +100,22 @@ while True:
             #letter = ocrres[0]
             #confidence = ocrres[1]
             file = open("log.txt","a")
-            file.write(ocrres[0]+"\n")# ocrres[1]))
+            file.write(ocrres[0]+","+lat+","+long+"\n")# ocrres[1]))
             file.close()
-            print(ocrres[0])
+            print("---------------", ocrres[0])
             ocrcount += 1
 
     os.remove(os.path.join(path,name))
     if ocrcount >= 3:
-        print("OCR SLEEPPPPING")
+        print("---------------OCR SLEEPING")
         file = open("log.txt","a")
         file.write("SLEEP")       
         time.sleep(30)
-        print("AWOKE")
+        print("---------------OCR RESTARTING")
         ocrcount = 0
         files = os.listdir(path)
         for file in files:
             if file.endswith(".png"):
                 os.remove(os.path.join(path,file))
-        print("LMAO I DIDNT CRASH YOURE JUST RETARDED")
+        print("---------------OCR READY")
+        

@@ -178,7 +178,7 @@ def doocr(preocr):
             return (' ',' ')
 
 
-def outimg(image, preocr, letter=' ', confidence=0, fps=0, fpsproc=0):
+def outimg(image, preocr, lat, long, letter=' ', confidence=0, fps=0, fpsproc=0):
     """outimg prepares the final output image"""
 
     composit = np.zeros((720, 1280, 3), dtype=np.uint8)  # final output feed
@@ -204,6 +204,8 @@ def outimg(image, preocr, letter=' ', confidence=0, fps=0, fpsproc=0):
     cv2.putText(composit, "%", (1230, 450), cv2.FONT_HERSHEY_COMPLEX, 0.7, (255, 255, 255), 1)
     cv2.putText(composit, str(fps), (50, 50), cv2.FONT_HERSHEY_COMPLEX, 0.5, (255, 255, 255), 1)
     cv2.putText(composit, str(fpsproc), (50, 70), cv2.FONT_HERSHEY_COMPLEX, 0.5, (255, 255, 255), 1)
+    cv2.putText(composit, str(lat), (80, 50), cv2.FONT_HERSHEY_COMPLEX, 0.5, (255, 255, 255), 1)
+    cv2.putText(composit, str(long), (150, 50), cv2.FONT_HERSHEY_COMPLEX, 0.5, (255, 255, 255), 1)
 
 
     return composit
