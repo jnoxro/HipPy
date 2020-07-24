@@ -1,6 +1,7 @@
 # HipPy
-Image Processing and Target Recognition, written by the Project Hex team for entry to the IMechE UAS challenge.
-Repo used as a code dump no proper structure used - probably won't run
+Image Processing and Target Recognition, written by the Project Hex team for entry to the IMechE UAS challenge 2018/19.
+
+Repo served as a code dump and transfer tool between systems, no proper structure or process used - it probably won't run
 
 Requirements:
 
